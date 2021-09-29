@@ -49,8 +49,8 @@ class QuadrupedWalkingAlgorithm
     void calculateStepParameters    // calculate initial step parameters
     (
         float xLength,
-        LegParameters legParameters,
-        LegCordinates legCordinates
+        LegParameters &legParameters,
+        LegCordinates &legCordinates
     );
 
     void calculateStepPointXY    // calculate x and y cordinates of one point in step trajectory
@@ -60,8 +60,8 @@ class QuadrupedWalkingAlgorithm
         float xLength,                  // one step lenght on x axis
         float& xPoint,                  // x cordinate of point in trajectory
         float& yPoint,                  // y cordinate of point in trajectory
-        LegParameters legParameters,    // struct
-        LegCordinates legCordinates     // struct
+        LegParameters &legParameters,    // struct
+        LegCordinates &legCordinates     // struct
     );
 
     float calculateZTrajectory(float xBeg, float yBeg, float x, float y, float lengthOfMove);    // calculate z of eliptic trajectory
@@ -71,8 +71,8 @@ class QuadrupedWalkingAlgorithm
         int pointNumber,                // number of point in trajectory
         float xLength,                  // one step lenght on x axis
         bool isOnGround,                // leg is on ground
-        LegParameters legParameters,    // struct
-        LegCordinates legCordinates     // struct
+        LegParameters &legParameters,    // struct
+        LegCordinates &legCordinates     // struct
     );
 
     public:

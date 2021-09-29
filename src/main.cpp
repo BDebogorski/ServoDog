@@ -4,10 +4,11 @@
 #include <InternalTemperature.h>
 
 #include <PowerSystem.hpp>
-#include <Robot.hpp>
+//#include <Robot.hpp>
 #include <IMU.hpp>
 #include <IMUFilter.hpp>
 #include <RC.hpp>
+#include <QuadrupedRobot.hpp>
 
 const float dt = 0.005;
 
@@ -37,7 +38,8 @@ IMU imuSensor;
 IMUFilter filter;
 RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
-Robot robot(frontLeft, backLeft, frontRight, backRight, filter);
+//Robot robot(frontLeft, backLeft, frontRight, backRight, filter);
+QuadrupedRobot robot(frontLeft, backLeft, frontRight, backRight, filter);
 
 void getAngle()
 {
@@ -105,8 +107,12 @@ void setup()
   //robot.setAllLegsPosition(0, 0, 0.06);
   //robot.moveAllLegs();
 
+  robot.setLeftFrontMountingPosition(0.04, 0.06);
+  robot.setRightFrontMountingPosition(-0.04, 0.06);
+  robot.setLeftBackMountingPosition(0.04, -0.06);
+  robot.setRightBacktMountingPosition(-0.04, -0.06);
+
   robot.setAllLegsPosition(0, 0, 0.08);
-  
   robot.setXOffset(0.01);
   robot.setXSpacing(-0.02);
   robot.setXBodyAngle(0);
@@ -137,11 +143,12 @@ void loop()
 {
   //robot.goForAzimuth(0.12, 0, 20, 0.07, 0.006, 0.07, filter.getZAngle(), 0, M_PI/6, false); // robosprint
   //robot.goForAzimuth(0.06, 0.1, 20, 0.07, 0.01, 0.02, filter.getZAngle(), 0, M_PI/12, true);
-  robot.walk(0.06, 0.1, 20, 0.08, 0.015, 0.02, 0.02, 0, 0, false);
+  //robot.walk(0.06, 0.1, 20, 0.08, 0.015, 0.02, 0.02, 0, 0, false);
+  robot.walk(0.06, 0.1, 60, 0.08, 0.015, 0.02, 0.02, 0, 0, false);
   //robot.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
   //robot.levelBody();
 
-  printImuSensor();
+  //printImuSensor();
   //printOrientation();
 
 /*

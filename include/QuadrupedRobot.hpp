@@ -6,7 +6,7 @@
 extern volatile int moveTimer;
 void moveClock();
 
-class Robot
+class QuadrupedRobot
 {
 private:
 
@@ -33,7 +33,12 @@ private:
 
 public:
 
-	Robot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter);
+	QuadrupedRobot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter);
+
+	void setLeftFrontMountingPosition(float x, float y);
+	void setRightFrontMountingPosition(float x, float y);
+	void setLeftBackMountingPosition(float x, float y);
+	void setRightBacktMountingPosition(float x, float y);
 
 	bool setXOffset(float offset);
 	bool setYOffset(float offset);

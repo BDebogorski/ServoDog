@@ -8,7 +8,7 @@ void moveClock()
 	moveTimer++;
 }
 
-Robot::Robot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter)
+QuadrupedRobot::QuadrupedRobot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter)
 {
 	this->leftFront = &leftFront;
 	this->leftBack = &leftBack;
@@ -29,16 +29,29 @@ Robot::Robot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF
 
 	xBodyAngle = 0;
 	yBodyAngle = 0;
-
-	startLeg = true;
-
-	walkingAlgorithm.setLeftFrontMountingPosition(0.04, 0.06);
-	walkingAlgorithm.setRightFrontMountingPosition(-0.04, 0.06);
-	walkingAlgorithm.setLeftBackMountingPosition(0.04, -0.06);
-	walkingAlgorithm.setRightBackMountingPosition(-0.04, -0.06);
 }
 
-bool Robot::setXOffset(float offset)
+void QuadrupedRobot::setLeftFrontMountingPosition(float x, float y)
+{
+	walkingAlgorithm.setLeftFrontMountingPosition(x, y);
+}
+
+void QuadrupedRobot::setRightFrontMountingPosition(float x, float y)
+{
+	walkingAlgorithm.setRightFrontMountingPosition(x, y);
+}
+
+void QuadrupedRobot::setLeftBackMountingPosition(float x, float y)
+{
+	walkingAlgorithm.setLeftBackMountingPosition(x, y);
+}
+
+void QuadrupedRobot::setRightBacktMountingPosition(float x, float y)
+{
+	walkingAlgorithm.setRightBackMountingPosition(x, y);
+}
+
+bool QuadrupedRobot::setXOffset(float offset)
 {
 	if(!leftFront->setXOffset(offset+xSpacing)) return false;
 	if(!leftBack->setXOffset(offset+xSpacing)) return false;
@@ -49,7 +62,7 @@ bool Robot::setXOffset(float offset)
 	return true;
 }
 
-bool Robot::setYOffset(float offset)
+bool QuadrupedRobot::setYOffset(float offset)
 {
 	if(!leftFront->setYOffset(offset+ySpacing)) return false;
 	if(!leftBack->setYOffset(offset+ySpacing)) return false;
@@ -60,7 +73,7 @@ bool Robot::setYOffset(float offset)
 	return true;
 }
 
-bool Robot::setZOffset(float offset)
+bool QuadrupedRobot::setZOffset(float offset)
 {
 	if(!leftFront->setZOffset(offset)) return false;
 	if(!leftBack->setZOffset(offset)) return false;
@@ -71,7 +84,7 @@ bool Robot::setZOffset(float offset)
 	return true;
 }
 
-bool Robot::setXSpacing(float spacing)
+bool QuadrupedRobot::setXSpacing(float spacing)
 {
 	spacing /= 2;
 
@@ -84,7 +97,7 @@ bool Robot::setXSpacing(float spacing)
 	return true;
 }
 
-bool Robot::setYSpacing(float spacing)
+bool QuadrupedRobot::setYSpacing(float spacing)
 {
 	spacing /=2;
 
@@ -97,7 +110,7 @@ bool Robot::setYSpacing(float spacing)
 	return true;
 }
 
-bool Robot::setAllLegsPosition(float x, float y, float z)
+bool QuadrupedRobot::setAllLegsPosition(float x, float y, float z)
 {
 	if(!leftFront->setPosition(x, y, z)) return false;
 	if(!rightFront->setPosition(x, y, z)) return false;
@@ -107,17 +120,17 @@ bool Robot::setAllLegsPosition(float x, float y, float z)
 	return true;
 }
 
-void Robot::setXBodyAngle(float angle)
+void QuadrupedRobot::setXBodyAngle(float angle)
 {
 	xBodyAngle = angle;
 }
 
-void Robot::setYBodyAngle(float angle)
+void QuadrupedRobot::setYBodyAngle(float angle)
 {
 	yBodyAngle = angle;
 }
 
-bool Robot::moveAllLegs()
+bool QuadrupedRobot::moveAllLegs()
 {
 	if(!leftFront->move()) return false;
 	if(!rightFront->move()) return false;
@@ -127,7 +140,7 @@ bool Robot::moveAllLegs()
 	return true;
 }
 
-bool Robot::levelBody()
+bool QuadrupedRobot::levelBody()
 {
 	bool status = true;
 
@@ -153,12 +166,12 @@ bool Robot::levelBody()
 	return status;
 }
 
-void Robot::setStartLegs(bool startLeg)
+void QuadrupedRobot::setStartLegs(bool startLeg)
 {
 	walkingAlgorithm.setStartLeg(startLeg);
 }
 
-void Robot::walk
+void QuadrupedRobot::walk
 (
 	float time,
 	float pause,
@@ -183,27 +196,38 @@ void Robot::walk
 	}
 
 	walkingAlgorithm.setLeftFrontLegPosition(leftFront->getXPosition(), leftFront->getYPosition(), leftFront->getZPosition());
-	walkingAlgorithm.setLeftFrontLegPosition(rightFront->getXPosition(), rightFront->getYPosition(), rightFront->getZPosition());
-	walkingAlgorithm.setLeftFrontLegPosition(leftBack->getXPosition(), leftBack->getYPosition(), leftBack->getZPosition());
-	walkingAlgorithm.setLeftFrontLegPosition(rightBack->getXPosition(), rightBack->getYPosition(), rightBack->getZPosition());
+	walkingAlgorithm.setRightFrontLegPosition(rightFront->getXPosition(), rightFront->getYPosition(), rightFront->getZPosition());
+	walkingAlgorithm.setLeftBackLegPosition(leftBack->getXPosition(), leftBack->getYPosition(), leftBack->getZPosition());
+	walkingAlgorithm.setRightBackLegPosition(rightBack->getXPosition(), rightBack->getYPosition(), rightBack->getZPosition());
 
 	walkingAlgorithm.setWalkParameters(nPoints, zHeight, stepHeight, xLengthL, xLengthR, yLength, rot);
 
-	for (int i = 0; i < nPoints; i++)
+	for (int i = 0; i < nPoints+1; i++)
 	{
 		moveTimer = 0;
+
+		walkingAlgorithm.calculate(i);
 
 		walkingAlgorithm.getLeftFrontLegPosition(LFCordinates);
 		walkingAlgorithm.getRightFrontLegPosition(RFCordinates);
 		walkingAlgorithm.getLeftBackLegPosition(LBCordinates);
 		walkingAlgorithm.getRightBackLegPosition(RBCordinates);
 
+		Serial.print(LFCordinates.xPosition,4);
+		Serial.print(" ");
+		Serial.print(LFCordinates.yPosition,4);
+		Serial.print(" ");
+		Serial.println(LFCordinates.zPosition,4);
+
 		leftFront->setPosition(LFCordinates.xPosition, LFCordinates.yPosition, LFCordinates.zPosition);
 		rightFront->setPosition(RFCordinates.xPosition, RFCordinates.yPosition, RFCordinates.zPosition);
 		leftBack->setPosition(LBCordinates.xPosition, LBCordinates.yPosition, LBCordinates.zPosition);
 		rightBack->setPosition(RBCordinates.xPosition, RBCordinates.yPosition, RBCordinates.zPosition);
 
-		moveAllLegs();
+		leftFront->move();
+		rightFront->move();
+		leftBack->move();
+		rightBack->move();
 
 		while (moveTimer < time/nPoints*200000 && i < nPoints) //delay
 		{
@@ -214,7 +238,7 @@ void Robot::walk
 	moveTimer = 0;
 }
 
-void Robot::goForAzimuth
+void QuadrupedRobot::goForAzimuth
 (
 	float time,
 	float pause,
