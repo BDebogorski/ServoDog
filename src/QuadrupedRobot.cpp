@@ -213,12 +213,6 @@ void QuadrupedRobot::walk
 		walkingAlgorithm.getLeftBackLegPosition(LBCordinates);
 		walkingAlgorithm.getRightBackLegPosition(RBCordinates);
 
-		Serial.print(LFCordinates.xPosition,4);
-		Serial.print(" ");
-		Serial.print(LFCordinates.yPosition,4);
-		Serial.print(" ");
-		Serial.println(LFCordinates.zPosition,4);
-
 		leftFront->setPosition(LFCordinates.xPosition, LFCordinates.yPosition, LFCordinates.zPosition);
 		rightFront->setPosition(RFCordinates.xPosition, RFCordinates.yPosition, RFCordinates.zPosition);
 		leftBack->setPosition(LBCordinates.xPosition, LBCordinates.yPosition, LBCordinates.zPosition);

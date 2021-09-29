@@ -35,25 +35,25 @@ public:
 
 	QuadrupedRobot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter);
 
-	void setLeftFrontMountingPosition(float x, float y);
+	void setLeftFrontMountingPosition(float x, float y);    // legs mounting position relative to the center of body
 	void setRightFrontMountingPosition(float x, float y);
 	void setLeftBackMountingPosition(float x, float y);
 	void setRightBacktMountingPosition(float x, float y);
 
-	bool setXOffset(float offset);
+	bool setXOffset(float offset);    // set body offset
 	bool setYOffset(float offset);
 	bool setZOffset(float offset);
-	bool setXSpacing(float spacing);
+	bool setXSpacing(float spacing);    // set spacing between legs
 	bool setYSpacing(float spacing);
-    bool setAllLegsPosition(float x, float y, float z);
+    bool setAllLegsPosition(float x, float y, float z);    // set same positions of all the legs
 
-    void setXBodyAngle(float angle);
+    void setXBodyAngle(float angle);    // set body orientation offset
 	void setYBodyAngle(float angle);
 
-	bool moveAllLegs();
-	bool levelBody();
+	bool moveAllLegs();    // move legs to set positions
+	bool levelBody();      // level body to angle
 
-	void setStartLegs(bool startLeg);
+	void setStartLegs(bool startLeg);    // set first moving leg pair (true - leftFront, rightBack)
 
 	void walk
 	(

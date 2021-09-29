@@ -4,7 +4,6 @@
 #include <InternalTemperature.h>
 
 #include <PowerSystem.hpp>
-//#include <Robot.hpp>
 #include <IMU.hpp>
 #include <IMUFilter.hpp>
 #include <RC.hpp>
@@ -38,7 +37,6 @@ IMU imuSensor;
 IMUFilter filter;
 RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
-//Robot robot(frontLeft, backLeft, frontRight, backRight, filter);
 QuadrupedRobot robot(frontLeft, backLeft, frontRight, backRight, filter);
 
 void getAngle()

@@ -34,26 +34,9 @@ class Leg2DoF
     float yOffset;
     float zOffset;
 
-    float xStartStep;    // start point of step
-    float yStartStep;    // start point of step
-
-    float lengthOfMove;    // length of step move (XY)
-
     bool readyToMove;
 
     bool invKinematics(float x, float y, float z);    // in this model y = 0
-
-    void getStepPointXY
-    (
-        int nPoints,        // number of points in trajectory
-        int pointNumber,    // number of point in trajectory
-        int pairLeg,        // pair of legs {-1, 1}
-        float xLength,      // one step lenght on x axis
-        float yLength,      // one step lenght on y axis
-        float rotation,     // robot rotation of one step
-        float& xPoint,      // x cordinate of point in trajectory
-        float& yPoint       // y cordinate of point in trajectory
-    );
 
     public:
 
@@ -81,20 +64,6 @@ class Leg2DoF
 
     bool setPosition(float x, float y, float z);    // set leg position
     bool move();                                    // movement of the leg to the set position
-
-    void calculateStepParameters(int nPoints, float xLength, float yLength, float rotation);  // use before step
-
-    void setStepPoint
-    (
-        int pointNumber,     // number of point in trajectory
-        int nPoints,         // number of points in trajectory
-        float xLength,       // one step lenght on x axis
-        float yLength,       // one step lenght on y axis
-        float rotation,      // rotation for one step
-        float stepHeight,    // height of step
-        float zPos,          // z position of body
-        bool isOnGround      // leg is on ground
-    );
 
     float getXOffset();
     float getYOffset();

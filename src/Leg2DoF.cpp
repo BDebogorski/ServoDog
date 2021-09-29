@@ -28,36 +28,6 @@ bool Leg2DoF::invKinematics(float x, float y, float z)
 	return true;
 }
 
-void Leg2DoF::getStepPointXY
-(
-    int nPoints,
-    int pointNumber,
-    int pairLeg,
-    float xLength,
-    float yLength,
-    float rotationAngle,
-    float& xPoint,
-    float& yPoint
-)
-{
-	if(pointNumber == 0)   // first point of step
-	{
-		xStartStep = xPosition;    // start point of step
-		yStartStep = yPosition;    // start point of step
-	}
-
-	float xEnd = pairLeg * (nPoints/2 - nPoints) * xLength / nPoints;    // end point of step
-	float yEnd = pairLeg * (nPoints/2 - nPoints) * yLength / nPoints;    // end point of step
-
-	float rotRate = (nPoints/2 - pointNumber) * pairLeg * rotationAngle / nPoints;    // angle in this point
-
-	xPoint = xStartStep - pairLeg * (pairLeg * (xStartStep-xEnd) / nPoints * pointNumber) +    // translation
-    xMountingPosition*cos(rotRate) - yMountingPosition*sin(rotRate) - xMountingPosition;       // rotation
-
-	yPoint = yStartStep - pairLeg * (pairLeg * (yStartStep-yEnd) / nPoints * pointNumber) +   // translation
-    xMountingPosition*sin(rotRate) + yMountingPosition*cos(rotRate) - yMountingPosition;      // rotation
-}
-
 Leg2DoF::Leg2DoF() {}
 
 Leg2DoF::Leg2DoF
@@ -103,11 +73,6 @@ Leg2DoF::Leg2DoF
 
     t1 = 0;
     t2 = 0;
-
-    xStartStep = 0;
-    yStartStep = 0;
-
-    lengthOfMove = 0;
 
     readyToMove = false;
 }
@@ -189,49 +154,6 @@ bool Leg2DoF::move()
     lastZPosition = zPosition;
 
     return true;
-}
-
-void Leg2DoF::calculateStepParameters(int nPoints, float xLength, float yLength, float rotation)
-{
-	float xEnd;
-    float yEnd;
-
-    getStepPointXY(nPoints, 0, true, xLength, yLength, rotation, xStartStep, yStartStep);    // get start point of step
-	getStepPointXY(nPoints, nPoints, true, xLength, yLength, rotation, xEnd, yEnd);          // get end point of step
-	lengthOfMove = sqrt(pow(xStartStep - xEnd, 2) + pow(yStartStep - yEnd, 2));              // calculate length on step (XY)
-}
-
-void Leg2DoF::setStepPoint
-(
-    int pointNumber,
-    int nPoints,
-    float xLength,
-    float yLength,
-    float rotation,
-    float stepHeight,
-    float zBodyPosition,
-    bool isOnGround
-)
-{
-    float xStep;
-    float yStep;
-    float zStep;
-
-	if(isOnGround)
-	{
-		getStepPointXY(nPoints, pointNumber, -1, xLength, yLength, rotation, xStep, yStep);
-		zStep = zBodyPosition;
-	}
-	else
-	{
-		getStepPointXY(nPoints, pointNumber, 1, xLength, yLength, rotation, xStep, yStep);
-
-		float xE = 2 * (sqrt(pow(xStep-xStartStep, 2) + pow(yStep-yStartStep, 2)) - lengthOfMove/2);
-		float t = acos(xE/lengthOfMove);
-		zStep = zBodyPosition - stepHeight*sin(t);    // leg trajectory
-	}
-
-    setPosition(xStep, yStep, zStep);    // set point of step
 }
 
 float Leg2DoF::getXOffset()

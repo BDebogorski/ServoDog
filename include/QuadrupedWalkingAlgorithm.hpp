@@ -55,11 +55,11 @@ class QuadrupedWalkingAlgorithm
 
     void calculateStepPointXY    // calculate x and y cordinates of one point in step trajectory
     (
-        int pointNumber,                // number of point in trajectory
-        int pairLeg,                    // pair of legs {-1, 1}
-        float xLength,                  // one step lenght on x axis
-        float& xPoint,                  // x cordinate of point in trajectory
-        float& yPoint,                  // y cordinate of point in trajectory
+        int pointNumber,                 // number of point in trajectory
+        int pairLeg,                     // pair of legs {-1, 1}
+        float xLength,                   // one step lenght on x axis
+        float& xPoint,                   // x cordinate of point in trajectory
+        float& yPoint,                   // y cordinate of point in trajectory
         LegParameters &legParameters,    // struct
         LegCordinates &legCordinates     // struct
     );
@@ -68,9 +68,9 @@ class QuadrupedWalkingAlgorithm
 
     void calculateStepPoint    // calculate all cordinates of one point in step trajectory
     (
-        int pointNumber,                // number of point in trajectory
-        float xLength,                  // one step lenght on x axis
-        bool isOnGround,                // leg is on ground
+        int pointNumber,                 // number of point in trajectory
+        float xLength,                   // one step lenght on x axis
+        bool isOnGround,                 // leg is on ground
         LegParameters &legParameters,    // struct
         LegCordinates &legCordinates     // struct
     );
@@ -84,8 +84,8 @@ class QuadrupedWalkingAlgorithm
     void setLeftBackMountingPosition(float x, float y);
     void setRightBackMountingPosition(float x, float y);
 
-    void setSpacing(float xSpacing, float ySpacing);
-    void setStartLeg(bool startLeg);
+    void setSpacing(float xSpacing, float ySpacing);    // set legs spacing
+    void setStartLeg(bool startLeg);    // set first moving leg pair
 
     bool setWalkParameters    // set parameters of step
     (	
