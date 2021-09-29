@@ -7,14 +7,13 @@ void QuadrupedWalkingAlgorithm::calculateStepParameters
     LegParameters legParameters,
     LegCordinates legCordinates
 )
-
 { 
 	float xEnd;
     float yEnd;
 
-    calculateStepPointXY(0, true, xLength, legParameters.xStartStep, legParameters.yStartStep, legParameters, legCordinates);    // get start point of step
-	calculateStepPointXY(nPoints, true, xLength, xEnd, yEnd, legParameters, legCordinates);  // get end point of step
-	legParameters.lengthOfMove = sqrt(pow(legParameters.xStartStep - xEnd, 2) + pow(legParameters.yStartStep - yEnd, 2)); // calculate length on step (XY)
+    calculateStepPointXY(0, true, xLength, legParameters.xStartStep, legParameters.yStartStep, legParameters, legCordinates);
+	calculateStepPointXY(nPoints, true, xLength, xEnd, yEnd, legParameters, legCordinates);
+	legParameters.lengthOfMove = sqrt(pow(legParameters.xStartStep - xEnd, 2) + pow(legParameters.yStartStep - yEnd, 2));
 }
 
 void QuadrupedWalkingAlgorithm::calculateStepPointXY
@@ -46,6 +45,14 @@ void QuadrupedWalkingAlgorithm::calculateStepPointXY
     legParameters.xMountingPosition*sin(rotRate) + legParameters.yMountingPosition*cos(rotRate) - legParameters.yMountingPosition;
 }
 
+float QuadrupedWalkingAlgorithm::calculateZTrajectory(float xBeg, float yBeg, float x, float y, float lengthOfMove)
+{
+    float xE = 2*(sqrt(pow(x-xBeg, 2) + pow(y-yBeg, 2)) - lengthOfMove/2);
+	float t = acos(xE/lengthOfMove);
+
+	return zBodyPosition - stepHeight*sin(t);    // leg trajectory
+}
+
 void QuadrupedWalkingAlgorithm::calculateStepPoint
 (
     int pointNumber,
@@ -55,27 +62,24 @@ void QuadrupedWalkingAlgorithm::calculateStepPoint
     LegCordinates legCordinates
 )
 {
-    float xStep;
-    float yStep;
-    float zStep;
+    float x;
+    float y;
+    float z;
 
 	if(isOnGround)
 	{
-		calculateStepPointXY(pointNumber, -1, xLength, xStep, yStep, legParameters, legCordinates);
-		zStep = zBodyPosition;
+		calculateStepPointXY(pointNumber, -1, xLength, x, y, legParameters, legCordinates);
+		z = zBodyPosition;
 	}
 	else
 	{
-		calculateStepPointXY(pointNumber, 1, xLength, xStep, yStep, legParameters, legCordinates);
-
-		float xE = 2*(sqrt(pow(xStep-legParameters.xStartStep, 2) + pow(yStep-legParameters.yStartStep, 2)) - legParameters.lengthOfMove/2);
-		float t = acos(xE/legParameters.lengthOfMove);
-		zStep = zBodyPosition - stepHeight*sin(t);    // leg trajectory
+		calculateStepPointXY(pointNumber, 1, xLength, x, y, legParameters, legCordinates);
+        z = calculateZTrajectory(legParameters.xStartStep, legParameters.yStartStep, x, y, legParameters.lengthOfMove);
 	}
 
-    legCordinates.xPosition = xStep;
-    legCordinates.yPosition = yStep;
-    legCordinates.zPosition = zStep;
+    legCordinates.xPosition = x;
+    legCordinates.yPosition = y;
+    legCordinates.zPosition = z;
 }
 
 QuadrupedWalkingAlgorithm::QuadrupedWalkingAlgorithm()
@@ -84,6 +88,7 @@ QuadrupedWalkingAlgorithm::QuadrupedWalkingAlgorithm()
     ySpacing = 0;
 
     startLeg = true;
+    isReady = false;
 
     setLeftFrontLegPosition(0, 0, zBodyPosition);
     setRightFrontLegPosition(0, 0, zBodyPosition);
@@ -126,10 +131,8 @@ void QuadrupedWalkingAlgorithm::setStartLeg(bool startLeg)
     this->startLeg = startLeg;
 }
 
-void QuadrupedWalkingAlgorithm::setWalkParameters
-(	
-    float time,
-    float pause,
+bool QuadrupedWalkingAlgorithm::setWalkParameters
+(
     int nPoints,
     float zBodyPosition,
     float stepHeight,
@@ -139,8 +142,8 @@ void QuadrupedWalkingAlgorithm::setWalkParameters
     float rotation
 )
 {
-    this->time = time;
-    this->pause = pause;
+    if(stepHeight > zBodyPosition) return false;
+
     this->nPoints = nPoints;
     this->zBodyPosition = zBodyPosition;
     this->stepHeight = stepHeight;
@@ -148,6 +151,14 @@ void QuadrupedWalkingAlgorithm::setWalkParameters
     this->xLengthR = xLengthR;
     this->yLength = yLength;
     this->rotation = rotation;
+
+    calculateStepParameters(xLengthL, leftFrontParameters, leftFrontCordinates);
+    calculateStepParameters(xLengthR, rightFrontParameters, rightFrontCordinates);
+    calculateStepParameters(xLengthL, leftBackParameters, leftBackCordinates);
+    calculateStepParameters(xLengthR, rightBackParameters, rightBackCordinates);
+
+    isReady = true;
+    return true;
 }
 
 void QuadrupedWalkingAlgorithm::setLeftFrontLegPosition(float x, float y, float z)
@@ -178,50 +189,64 @@ void QuadrupedWalkingAlgorithm::setRightBackLegPosition(float x, float y, float 
     rightBackCordinates.zPosition = z;
 }
 
-void QuadrupedWalkingAlgorithm::initStep()
+bool QuadrupedWalkingAlgorithm::calculate(int pointNumber)
 {
-    calculateStepParameters(xLengthL, leftFrontParameters, leftFrontCordinates);
-    calculateStepParameters(xLengthR, rightFrontParameters, rightFrontCordinates);
-    calculateStepParameters(xLengthL, leftBackParameters, leftBackCordinates);
-    calculateStepParameters(xLengthR, rightBackParameters, rightBackCordinates);
-}
+    if(!isReady) return false;
+    else isReady = false;
 
-void QuadrupedWalkingAlgorithm::calculate(float stepTime)
-{
-    float pointNumber = nPoints*stepTime;
+    if(pointNumber > nPoints || pointNumber < 0) return false;
 
     calculateStepPoint(pointNumber, xLengthL, !startLeg, leftFrontParameters, leftFrontCordinates);
     calculateStepPoint(pointNumber, xLengthL, startLeg, rightFrontParameters, rightFrontCordinates);
     calculateStepPoint(pointNumber, xLengthL, startLeg, leftBackParameters, leftBackCordinates);
     calculateStepPoint(pointNumber, xLengthL, !startLeg, rightBackParameters, rightBackCordinates);
 
-    if(stepTime >= time) startLeg = !startLeg;
+    if(pointNumber >= nPoints) startLeg = !startLeg;
+
+    isReady = true;
+    return true;
 }
 
 void QuadrupedWalkingAlgorithm::getLeftFrontLegPosition(LegCordinates &legCordinates)
 {
+    if(!isReady) return false;
+
     leftFrontCordinates.xPosition = legCordinates.xPosition;
     leftFrontCordinates.yPosition = legCordinates.yPosition;
     leftFrontCordinates.zPosition = legCordinates.zPosition;
+
+    return true;
 }
 
-void QuadrupedWalkingAlgorithm::getRightFrontLegPosition(LegCordinates &legCordinates)
+bool QuadrupedWalkingAlgorithm::getRightFrontLegPosition(LegCordinates &legCordinates)
 {
+    if(!isReady) return false;
+
     rightFrontCordinates.xPosition = legCordinates.xPosition;
     rightFrontCordinates.yPosition = legCordinates.yPosition;
     rightFrontCordinates.zPosition = legCordinates.zPosition;
+
+    return true;
 }
 
-void QuadrupedWalkingAlgorithm::getLeftBackLegPosition(LegCordinates &legCordinates)
+bool QuadrupedWalkingAlgorithm::getLeftBackLegPosition(LegCordinates &legCordinates)
 {
+    if(!isReady) return false;
+
     leftBackCordinates.xPosition = legCordinates.xPosition;
     leftBackCordinates.yPosition = legCordinates.yPosition;
     leftBackCordinates.zPosition = legCordinates.zPosition;
+
+    return true;
 }
 
-void QuadrupedWalkingAlgorithm::getRightBackLegPosition(LegCordinates &legCordinates)
+bool QuadrupedWalkingAlgorithm::getRightBackLegPosition(LegCordinates &legCordinates)
 {
+    if(!isReady) return false;
+
     rightBackCordinates.xPosition = legCordinates.xPosition;
     rightBackCordinates.yPosition = legCordinates.yPosition;
     rightBackCordinates.zPosition = legCordinates.zPosition;
+
+    return true;
 }
