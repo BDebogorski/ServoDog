@@ -31,6 +31,11 @@ Robot::Robot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF
 	yBodyAngle = 0;
 
 	startLeg = true;
+
+	walkingAlgorithm.setLeftFrontMountingPosition(0.04, 0.06);
+	walkingAlgorithm.setRightFrontMountingPosition(-0.04, 0.06);
+	walkingAlgorithm.setLeftBackMountingPosition(0.04, -0.06);
+	walkingAlgorithm.setRightBackMountingPosition(-0.04, -0.06);
 }
 
 bool Robot::setXOffset(float offset)
@@ -150,7 +155,7 @@ bool Robot::levelBody()
 
 void Robot::setStartLegs(bool startLeg)
 {
-	this->startLeg = startLeg;
+	walkingAlgorithm.setStartLeg(startLeg);
 }
 
 void Robot::walk
@@ -167,30 +172,38 @@ void Robot::walk
 	bool stabilization
 ){
 
+	LegCordinates LFCordinates;
+	LegCordinates RFCordinates;
+	LegCordinates LBCordinates;
+	LegCordinates RBCordinates;
+
 	while (moveTimer < pause*100000) // pause
 	{
 		if(stabilization) levelBody();
 	}
 
-	leftFront->calculateStepParameters(nPoints, xLengthL, yLength, rot);
-	leftBack->calculateStepParameters(nPoints, xLengthL, yLength, rot);
-	rightFront->calculateStepParameters(nPoints, xLengthR, yLength, rot);
-	rightBack->calculateStepParameters(nPoints, xLengthR, yLength, rot);
+	walkingAlgorithm.setLeftFrontLegPosition(leftFront->getXPosition(), leftFront->getYPosition(), leftFront->getZPosition());
+	walkingAlgorithm.setLeftFrontLegPosition(rightFront->getXPosition(), rightFront->getYPosition(), rightFront->getZPosition());
+	walkingAlgorithm.setLeftFrontLegPosition(leftBack->getXPosition(), leftBack->getYPosition(), leftBack->getZPosition());
+	walkingAlgorithm.setLeftFrontLegPosition(rightBack->getXPosition(), rightBack->getYPosition(), rightBack->getZPosition());
 
-	for (int i = 0; i < nPoints + 1; i++)
+	walkingAlgorithm.setWalkParameters(nPoints, zHeight, stepHeight, xLengthL, xLengthR, yLength, rot);
+
+	for (int i = 0; i < nPoints; i++)
 	{
 		moveTimer = 0;
 
-		leftFront->setStepPoint(i, nPoints, xLengthL, yLength, rot, stepHeight, zHeight, !startLeg);
-		leftBack->setStepPoint(i, nPoints, xLengthL, yLength, rot, stepHeight, zHeight, startLeg);
+		walkingAlgorithm.getLeftFrontLegPosition(LFCordinates);
+		walkingAlgorithm.getRightFrontLegPosition(RFCordinates);
+		walkingAlgorithm.getLeftBackLegPosition(LBCordinates);
+		walkingAlgorithm.getRightBackLegPosition(RBCordinates);
 
-		rightFront->setStepPoint(i, nPoints, xLengthR, yLength, rot, stepHeight, zHeight, startLeg);
-		rightBack->setStepPoint(i, nPoints, xLengthR, yLength, rot, stepHeight, zHeight, !startLeg);
+		leftFront->setPosition(LFCordinates.xPosition, LFCordinates.yPosition, LFCordinates.zPosition);
+		rightFront->setPosition(RFCordinates.xPosition, RFCordinates.yPosition, RFCordinates.zPosition);
+		leftBack->setPosition(LBCordinates.xPosition, LBCordinates.yPosition, LBCordinates.zPosition);
+		rightBack->setPosition(RBCordinates.xPosition, RBCordinates.yPosition, RBCordinates.zPosition);
 
-		leftFront->move();
-		leftBack->move();
-		rightFront->move();
-		rightBack->move();
+		moveAllLegs();
 
 		while (moveTimer < time/nPoints*200000 && i < nPoints) //delay
 		{
@@ -199,7 +212,6 @@ void Robot::walk
 	}
 
 	moveTimer = 0;
-	startLeg = !startLeg;
 }
 
 void Robot::goForAzimuth

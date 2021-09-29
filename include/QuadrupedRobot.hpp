@@ -1,6 +1,7 @@
 #pragma once
 #include <Leg2DoF.hpp>
 #include <IMUFilter.hpp>
+#include <QuadrupedWalkingAlgorithm.hpp>
 
 extern volatile int moveTimer;
 void moveClock();
@@ -15,8 +16,7 @@ private:
 	Leg2DoF* rightBack;
 
 	IMUFilter* imuFilter;
-
-	bool startLeg;
+	QuadrupedWalkingAlgorithm walkingAlgorithm;
 
 	float xSide;
 	float ySide;

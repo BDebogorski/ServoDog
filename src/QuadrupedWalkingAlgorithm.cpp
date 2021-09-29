@@ -207,7 +207,7 @@ bool QuadrupedWalkingAlgorithm::calculate(int pointNumber)
     return true;
 }
 
-void QuadrupedWalkingAlgorithm::getLeftFrontLegPosition(LegCordinates &legCordinates)
+bool QuadrupedWalkingAlgorithm::getLeftFrontLegPosition(LegCordinates &legCordinates)
 {
     if(!isReady) return false;
 
