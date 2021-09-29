@@ -7,7 +7,8 @@ void QuadrupedWalkingAlgorithm::calculateStepParameters
     LegParameters legParameters,
     LegCordinates legCordinates
 )
-{
+
+{ 
 	float xEnd;
     float yEnd;
 
