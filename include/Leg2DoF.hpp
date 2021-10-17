@@ -82,4 +82,6 @@ class Leg2DoF
 
     float getKneeAngle();    // radians
     float getHipAngle();     // radians
+
+    bool isReadyToMove();
 };

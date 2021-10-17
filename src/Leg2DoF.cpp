@@ -218,3 +218,8 @@ float Leg2DoF::getHipAngle()
 {
     return t2;
 }
+
+bool Leg2DoF::isReadyToMove()
+{
+    return readyToMove;
+}

@@ -102,10 +102,8 @@ void setup()
   Timer1.attachInterrupt(moveClock);
 
   robot.setAllLegsPosition(0, 0, 0.07);
-  robot.setXOffset(-0.01);
-  robot.setXSpacing(0.08);
-  robot.setBodyAngle(0, M_PI/18);
-  robot.moveAllLegs();
+  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveAllLegs();
 
   controller.setStartLegs(true); //leftFront, rightBack
 
@@ -126,8 +124,10 @@ void loop()
 {
   //controller.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
   //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
-  //controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0.01, 0.01, 0, 0, false);
+  //controller.walk(0.06, 0.1, 20, 0.07, 0.008, 0.01, 0.01, 0, 0, false);
   //controller.levelBody();
+  controller.jump(0.05, 0.08, 4);
+  delay(150);
 
   //printImuSensor();
   //printOrientation();

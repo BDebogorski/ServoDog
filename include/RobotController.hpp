@@ -33,11 +33,14 @@ public:
         IMUFilter &imuFilter
     );
 
-	void setLegMountingSpacing();        // legs mounting spacing
+    bool setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing);    // set all body kinematics
+
+    bool moveAllLegs();    // moving all legs to goal positions
+
 	bool levelBody();                    // level body to angle
 	void setStartLegs(bool startLeg);    // set first moving leg pair (true - leftFront, rightBack)
 
-	void walk
+	bool walk
 	(
 		float time,           // time of one step [s]
 		float pause,          // time between steps [s]
@@ -51,7 +54,7 @@ public:
 		bool stabilization    // stabilization on/off
 	);
 
-	void goForAzimuth
+	bool goForAzimuth
 	(
 		float time,           // time of one step [s]
 		float pause,          // time between steps [s]
@@ -64,4 +67,6 @@ public:
 		float fullStepAngle,  // angle at which take full step
 		bool stabilization    // stabilization on/off
 	);
+
+    bool jump(float minH, float maxH, float a);
 };

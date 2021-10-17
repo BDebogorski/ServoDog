@@ -73,6 +73,4 @@ public:
 
 	float getXAngle();    // get x body orientation
 	float getYAngle();    // get y body orientation
-
-	bool moveAllLegs();    // move legs to set positions
 };

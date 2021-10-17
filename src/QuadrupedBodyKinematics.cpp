@@ -186,13 +186,3 @@ float QuadrupedBodyKinematics::getYAngle()
 {
 	return yBodyAngle;
 }
-
-bool QuadrupedBodyKinematics::moveAllLegs()
-{
-	if(!leftFront->move()) return false;
-	if(!rightFront->move()) return false;
-	if(!leftBack->move()) return false;
-	if(!rightBack->move()) return false;
-
-	return true;
-}
