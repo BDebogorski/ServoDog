@@ -1,12 +1,13 @@
 #pragma once
 #include <Leg2DoF.hpp>
 #include <IMUFilter.hpp>
+#include <QuadrupedBodyKinematics.hpp>
 #include <QuadrupedWalkingAlgorithm.hpp>
 
 extern volatile int moveTimer;
 void moveClock();
 
-class QuadrupedRobot
+class RobotController
 {
 private:
 
@@ -15,44 +16,25 @@ private:
 	Leg2DoF* leftBack;
 	Leg2DoF* rightBack;
 
+    QuadrupedBodyKinematics* bodyKinematics;
 	IMUFilter* imuFilter;
+
 	QuadrupedWalkingAlgorithm walkingAlgorithm;
-
-	float xSide;
-	float ySide;
-
-	float xOffset;
-	float yOffset;
-	float zOffset;
-
-	float xSpacing;
-	float ySpacing;
-
-	float xBodyAngle;
-	float yBodyAngle;
 
 public:
 
-	QuadrupedRobot(Leg2DoF &leftFront, Leg2DoF &leftBack, Leg2DoF &rightFront, Leg2DoF &rightBack, IMUFilter &imuFilter);
+	RobotController
+    (
+        Leg2DoF &leftFront,
+        Leg2DoF &leftBack,
+        Leg2DoF &rightFront,
+        Leg2DoF &rightBack,
+        QuadrupedBodyKinematics &bodyKinematics,
+        IMUFilter &imuFilter
+    );
 
-	void setLeftFrontMountingPosition(float x, float y);    // legs mounting position relative to the center of body
-	void setRightFrontMountingPosition(float x, float y);
-	void setLeftBackMountingPosition(float x, float y);
-	void setRightBacktMountingPosition(float x, float y);
-
-	bool setXOffset(float offset);    // set body offset
-	bool setYOffset(float offset);
-	bool setZOffset(float offset);
-	bool setXSpacing(float spacing);    // set spacing between legs
-	bool setYSpacing(float spacing);
-    bool setAllLegsPosition(float x, float y, float z);    // set same positions of all the legs
-
-    void setXBodyAngle(float angle);    // set body orientation offset
-	void setYBodyAngle(float angle);
-
-	bool moveAllLegs();    // move legs to set positions
-	bool levelBody();      // level body to angle
-
+	void setLegMountingSpacing();        // legs mounting spacing
+	bool levelBody();                    // level body to angle
 	void setStartLegs(bool startLeg);    // set first moving leg pair (true - leftFront, rightBack)
 
 	void walk

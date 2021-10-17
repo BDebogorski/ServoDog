@@ -3,16 +3,14 @@
 #include <MsTimer2.h>
 #include <InternalTemperature.h>
 
-#include <PowerSystem.hpp>
+#include <RC.hpp>
 #include <IMU.hpp>
 #include <IMUFilter.hpp>
-#include <RC.hpp>
-#include <QuadrupedRobot.hpp>
+#include <PowerSystem.hpp>
+#include <QuadrupedBodyKinematics.hpp>
+#include <RobotController.hpp>
 
 const float dt = 0.005;
-
-float stepHeight;
-float speed;
 
 ServoMotor 
 frontLeftHip(2, 4, 1.12, true),
@@ -22,22 +20,23 @@ frontRightHip(23, -13, 1.16, false),
 frontRightKnee(22, -22, 1.15, true),
 
 backLeftHip(29, -11, 1.14, false),
-backLeftKnee(31, 20, 1.1, true),
+backLeftKnee(31, 3, 1.1, true),
 
 backRightHip(14, 4, 1.1, true),
 backRightKnee(15, 12, 1.13, false);
 
 Leg2DoF
-frontLeft(0.0425, 0.055, 0.0058, 0.06, 0.06, false, true, true, frontLeftHip, frontLeftKnee),
-backLeft(0.0425, 0.055, 0.0058, -0.06, -0.06, true, true, true, backLeftHip, backLeftKnee),
-frontRight(0.0425, 0.055, 0.0058, 0.06, 0.06, false, false, true, frontRightHip, frontRightKnee),
-backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, backRightHip, backRightKnee);
+frontLeft(0.0425, 0.055, 0.0058, 0.06, 0.06, false, true, true, 0.003, 0, 0.025, frontLeftHip, frontLeftKnee),
+backLeft(0.0425, 0.055, 0.0058, -0.06, -0.06, true, true, true, 0.003, 0, 0.025, backLeftHip, backLeftKnee),
+frontRight(0.0425, 0.055, 0.0058, 0.06, 0.06, false, false, true, 0.003, 0, 0.025, frontRightHip, frontRightKnee),
+backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, 0.003, 0, 0.025, backRightHip, backRightKnee);
 
 IMU imuSensor;
 IMUFilter filter;
 RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
-QuadrupedRobot robot(frontLeft, backLeft, frontRight, backRight, filter);
+QuadrupedBodyKinematics robot(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
+RobotController controller(frontLeft, backLeft, frontRight, backRight, robot, filter);
 
 void getAngle()
 {
@@ -102,26 +101,16 @@ void setup()
   Timer1.initialize(10);
   Timer1.attachInterrupt(moveClock);
 
-  //robot.setAllLegsPosition(0, 0, 0.06);
-  //robot.moveAllLegs();
-
-  robot.setLeftFrontMountingPosition(0.04, 0.06);
-  robot.setRightFrontMountingPosition(-0.04, 0.06);
-  robot.setLeftBackMountingPosition(0.04, -0.06);
-  robot.setRightBacktMountingPosition(-0.04, -0.06);
-
-  robot.setAllLegsPosition(0, 0, 0.08);
-  robot.setXOffset(0.01);
-  robot.setXSpacing(-0.02);
-  robot.setXBodyAngle(0);
-  robot.setYBodyAngle(0);
-
-  //robot.moveAllLegsSmoothly(1000, 1);
+  robot.setAllLegsPosition(0, 0, 0.07);
+  robot.setXOffset(-0.01);
+  robot.setXSpacing(0.08);
+  robot.setBodyAngle(0, M_PI/18);
   robot.moveAllLegs();
-  robot.setStartLegs(true); //leftFront, rightBack
+
+  controller.setStartLegs(true); //leftFront, rightBack
 
   imuSensor.init(10);
-  filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.01, dt); //0.03, 0.00001, 0.03, 0.00001, 0.1, 0.01, dt
+  filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.01, dt);
 
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
@@ -130,33 +119,18 @@ void setup()
   imuSensor.calibrate(1, 0.1);
   delay(1000);
 
-  //remote.init(1000, 1500, 2000, 1000, 1500, 2000, 0.002, 0.025);
-  stepHeight = remote.getStepHeight(0.004, 0.015);
-  speed = remote.getSpeed(0.06, 0.15);
-
   filter.zeroZAngle();
 }
 
-void loop() 
+void loop()
 {
-  //robot.goForAzimuth(0.12, 0, 20, 0.07, 0.006, 0.07, filter.getZAngle(), 0, M_PI/6, false); // robosprint
-  //robot.goForAzimuth(0.06, 0.1, 20, 0.07, 0.01, 0.02, filter.getZAngle(), 0, M_PI/12, true);
-  //robot.walk(0.06, 0.1, 20, 0.08, 0.015, 0.02, 0.02, 0, 0, false);
-  robot.walk(0.06, 0.1, 60, 0.08, 0.015, 0.02, 0.02, 0, 0, false);
-  //robot.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
-  //robot.levelBody();
+  //controller.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
+  //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
+  //controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0.01, 0.01, 0, 0, false);
+  //controller.levelBody();
 
   //printImuSensor();
   //printOrientation();
-
-/*
-  if(stepHeight > 0.004)
-  {
-    remote.mixer(true);
-    robot.walk(speed, 20, remote.getHeight(0.04, 0.08), stepHeight, remote.getRight(), remote.getLeft(), 0, 0, false);
-  }
-  else robot.setBodyAngle(0,0);
-  */
 
   if(pwrSystem.getBatteryLevel() == 0)
   {

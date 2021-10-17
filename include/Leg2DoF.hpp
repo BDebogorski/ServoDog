@@ -44,16 +44,19 @@ class Leg2DoF
 
 	Leg2DoF
 	(
-		float r1,                   // length of first part
-		float r2,                   // length of second part
-		float rFeet,                // radius of feet
+        float r1,                   // length of first part
+        float r2,                   // length of second part
+        float rFeet,                // radius of feet
         float xMountingPosition,    // y leg mounting position relative to the center of body
         float yMountingPosition,    // y leg mounting position relative to the center of body
         bool xSide,                 // direction of x axis
-		bool ySide,                 // direction of y axis
+        bool ySide,                 // direction of y axis
         bool zSide,                 // direction of z axis
-		ServoMotor &hip,            // hip motor
-		ServoMotor &knee            // knee motor
+        float xStart,               // x axis starting position
+        float yStart,               // y axis starting position
+        float zStart,               // z axis starting position
+        ServoMotor &hip,            // hip motor
+        ServoMotor &knee            // knee motor
 	);
 
     bool setXOffset(float offset);

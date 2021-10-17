@@ -40,6 +40,9 @@ Leg2DoF::Leg2DoF
     bool xSide,
 	bool ySide,
     bool zSide,
+    float xStart,
+    float yStart,
+    float zStart,
 	ServoMotor &hip,
 	ServoMotor &knee
 )
@@ -75,6 +78,11 @@ Leg2DoF::Leg2DoF
     t2 = 0;
 
     readyToMove = false;
+
+    if(xSide) this->setPosition(-xStart, yStart, zStart);
+    else this->setPosition(xStart, yStart, zStart);
+
+    this->move();
 }
 
 bool Leg2DoF::setXOffset(float offset)

@@ -103,7 +103,7 @@ class QuadrupedWalkingAlgorithm
     void setLeftBackLegPosition(float x, float y, float z);
     void setRightBackLegPosition(float x, float y, float z);
 
-    bool calculate(int poinNumber);    // calculate position for number of point in step
+    bool calculate(int poinNumber);    // calculate position for number of point in step (walking)
 
     bool getLeftFrontLegPosition(LegCordinates &legCordinates);    // get goal cordinates of legs
     bool getRightFrontLegPosition(LegCordinates &legCordinates);

@@ -27,7 +27,7 @@ bool ServoMotor::setPosition(short position)
 
     position += offset;
 
-    if(position < 10 || position > 170) 
+    if(position < 0 || position > 180) 
     {
         Serial.println("Error: Servo position out of range!");
         Serial.println(position);
