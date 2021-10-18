@@ -70,6 +70,61 @@ bool RobotController::moveAllLegs()
 	return true;
 }
 
+bool RobotController::moveBodySmoothly(float time, float nPoints)
+{
+    float lXLF = leftFront->getLastXOffset();
+    float lYLF = leftFront->getLastYOffset();
+    float lZLF = leftFront->getLastZOffset();
+
+    float lXRF = rightFront->getLastXOffset();
+    float lYRF = rightFront->getLastYOffset();
+    float lZRF = rightFront->getLastZOffset();
+
+    float lXLB = leftBack->getLastXOffset();
+    float lYLB = leftBack->getLastYOffset();
+    float lZLB = leftBack->getLastZOffset();
+
+    float lXRB = rightBack->getLastXOffset();
+    float lYRB = rightBack->getLastYOffset();
+    float lZRB = rightBack->getLastZOffset();
+
+    float LFXDiff = leftFront->getXOffset() - lXLF;
+    float LFYDiff = leftFront->getYOffset() - lYLF;
+    float LFZDiff = leftFront->getZOffset() - lZLF;
+
+    float RFXDiff = rightFront->getXOffset() - lXRF;
+    float RFYDiff = rightFront->getYOffset() - lYRF;
+    float RFZDiff = rightFront->getZOffset() - lZRF;
+
+    float LBXDiff = leftBack->getXOffset() - lXLB;
+    float LBYDiff = leftBack->getYOffset() - lYLB;
+    float LBZDiff = leftBack->getZOffset() - lZLB;
+
+    float RBXDiff = rightBack->getXOffset() - lXRB;
+    float RBYDiff = rightBack->getYOffset() - lYRB;
+    float RBZDiff = rightBack->getZOffset() - lZRB;
+
+    for (int i = 0; i < nPoints+1; i++)
+	{
+        moveTimer = 0;
+
+        if(!leftFront->setOffset(lXLF+LFXDiff/nPoints*i, lYLF+LFYDiff/nPoints*i, lZLF+LFZDiff/nPoints*i)) return false;
+        if(!rightFront->setOffset(lXRF+RFXDiff/nPoints*i, lYRF+RFYDiff/nPoints*i, lZRF+RFZDiff/nPoints*i)) return false;
+        if(!leftBack->setOffset(lXLB+LBXDiff/nPoints*i, lYLB+LBYDiff/nPoints*i, lZLB+LBZDiff/nPoints*i)) return false;
+        if(!rightBack->setOffset(lXRB+RBXDiff/nPoints*i, lYRB+RBYDiff/nPoints*i, lZRB+RBZDiff/nPoints*i)) return false;
+
+        if(!moveAllLegs()) return false;
+
+        while (moveTimer < time/nPoints*100000 && i < nPoints) //delay
+		{
+			//if(stabilization) levelBody();
+		}
+    }
+
+    moveTimer = 0;
+    return true;
+}
+
 bool RobotController::moveAllLegsSmoothly(float time, int nPoints)
 {
     float lXLF = leftFront->getLastXPosition();

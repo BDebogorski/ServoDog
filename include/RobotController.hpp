@@ -39,6 +39,7 @@ public:
     bool setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing);    // set all body kinematics
 
     bool moveAllLegs();                                   // moving all legs to goal positions
+    bool moveBodySmoothly(float time, float nPoints);     // moving body offset smoothly
     bool moveAllLegsSmoothly(float time, int nPoints);    // moving smoothly all legs to goal positions
 
 	bool levelBody();                    // level body to angle

@@ -77,6 +77,10 @@ Leg2DoF::Leg2DoF
     yOffset = 0;
     zOffset = 0;
 
+    lastXOffset = 0;
+    lastYOffset = 0;
+    lastZOffset = 0;
+
     t1 = 0;
     t2 = 0;
 
@@ -167,6 +171,10 @@ bool Leg2DoF::move()
     if(!hip->setPosition(t1*180/M_PI)) return false;
     if(!knee->setPosition(t2*180/M_PI)) return false;
 
+    lastXOffset = xOffset;
+    lastYOffset = yOffset;
+    lastZOffset = zOffset;
+
     lastXPosition = xPosition;
     lastYPosition = yPosition;
     lastZPosition = zPosition;
@@ -187,6 +195,21 @@ float Leg2DoF::getYOffset()
 float Leg2DoF::getZOffset()
 {
     return zOffset;
+}
+
+float Leg2DoF::getLastXOffset()
+{
+    return lastXOffset;
+}
+
+float Leg2DoF::getLastYOffset()
+{
+    return lastYOffset;
+}
+
+float Leg2DoF::getLastZOffset()
+{
+    return lastZOffset;
 }
 
 float Leg2DoF::getXPosition()

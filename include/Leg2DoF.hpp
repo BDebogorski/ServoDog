@@ -38,6 +38,10 @@ class Leg2DoF
     float yOffset;
     float zOffset;
 
+    float lastXOffset = 0;
+    float lastYOffset = 0;
+    float lastZOffset = 0;
+
     bool readyToMove;
 
     bool invKinematics(float x, float y, float z);    // in this model y = 0
@@ -76,6 +80,10 @@ class Leg2DoF
     float getXOffset();
     float getYOffset();
     float getZOffset();
+
+    float getLastXOffset();
+    float getLastYOffset();
+    float getLastZOffset();
 
     float getXPosition();
     float getYPosition();

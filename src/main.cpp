@@ -106,6 +106,9 @@ void setup()
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveAllLegs();
+  
+  controller.setBody(0.02, 0, 0, 0, -M_PI/18, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
 
   controller.setStartLegs(true); //leftFront, rightBack
 
