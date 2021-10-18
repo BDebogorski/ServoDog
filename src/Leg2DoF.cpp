@@ -47,7 +47,6 @@ Leg2DoF::Leg2DoF
 	ServoMotor &knee
 )
 {
-
     this->r1 = r1;
     this->r2 = r2;
     this->rFeet = rFeet;
@@ -61,6 +60,10 @@ Leg2DoF::Leg2DoF
 
     this->hip = &hip;
     this->knee = &knee;
+
+    this->xStart = xStart;
+    this->yStart = yStart;
+    this->zStart = zStart;
 
     xPosition = 0;
     yPosition = 0;
@@ -79,8 +82,10 @@ Leg2DoF::Leg2DoF
 
     readyToMove = false;
 
-    if(xSide) this->setPosition(-xStart, yStart, zStart);
-    else this->setPosition(xStart, yStart, zStart);
+    if(xSide) xStart = -xStart;
+    if(ySide) yStart = -yStart;
+
+    setPosition(xStart, yStart, zStart);
 
     this->move();
 }
@@ -150,6 +155,11 @@ bool Leg2DoF::setPosition(float x, float y, float z)
     return false;
 }
 
+bool Leg2DoF::setStartPosition()
+{
+    return setPosition(xStart, yStart, zStart);
+}
+
 bool Leg2DoF::move()
 {
     if(!readyToMove) return false;
@@ -217,6 +227,21 @@ float Leg2DoF::getKneeAngle()
 float Leg2DoF::getHipAngle()
 {
     return t2;
+}
+
+float Leg2DoF::getXStartPosition()
+{
+    return xStart;
+}
+
+float Leg2DoF::getYStartPosition()
+{
+    return yStart;
+}
+
+float Leg2DoF::getZStartPosition()
+{
+    return zStart;
 }
 
 bool Leg2DoF::isReadyToMove()

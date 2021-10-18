@@ -19,6 +19,10 @@ class Leg2DoF
     float xMountingPosition;
     float yMountingPosition;
 
+    float xStart;    // x start (zero) position
+    float yStart;    // y start (zero) position
+    float zStart;    // z start (zero) position
+
     float xPosition;    // x position
     float yPosition;    // y position
     float zPosition;    // z position
@@ -66,6 +70,7 @@ class Leg2DoF
     bool setOffset(float xOffset, float yOffset, float zOffset);
 
     bool setPosition(float x, float y, float z);    // set leg position
+    bool setStartPosition();                        // set start leg position
     bool move();                                    // movement of the leg to the set position
 
     float getXOffset();
@@ -82,6 +87,10 @@ class Leg2DoF
 
     float getKneeAngle();    // radians
     float getHipAngle();     // radians
+
+    float getXStartPosition();
+    float getYStartPosition();
+    float getZStartPosition();
 
     bool isReadyToMove();
 };

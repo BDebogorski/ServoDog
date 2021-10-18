@@ -36,7 +36,7 @@ IMUFilter filter;
 RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
 QuadrupedBodyKinematics bodyKinematics(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
-RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, filter);
+RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, pwrSystem, filter);
 
 void getAngle()
 {
@@ -102,7 +102,7 @@ void setup()
   Timer1.attachInterrupt(moveClock);
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.07);
-  controller.moveAllLegsSmoothly(2, 100);
+  controller.moveAllLegsSmoothly(0.8, 100);
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveAllLegs();
@@ -128,7 +128,7 @@ void loop()
   //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
   //controller.walk(0.06, 0.1, 20, 0.07, 0.008, 0.01, 0.01, 0, 0, false);
   //controller.levelBody();
-  
+
   //controller.jump(-1.2, 0, 0.8, 0, 0, 0.04, 0, 0.065, 0.085, 0.0001, false);
   //delay(110);
 
@@ -137,13 +137,11 @@ void loop()
   //printImuSensor();
   //printOrientation();
 
+  //controller.sitAndTurnOff(0.8, 100);
+
   if(pwrSystem.getBatteryLevel() == 0)
   {
-    while(true) 
-    {
-      Serial.println("Battery is empty! Charge now!");
-      delay(1000);
-    }
+    controller.sitAndTurnOff(0.8, 100);
   }
 
   if(imuSensor.getTemperature() > 60)

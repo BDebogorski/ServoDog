@@ -15,6 +15,7 @@ RobotController::RobotController
     Leg2DoF &rightFront,
     Leg2DoF &rightBack,
     QuadrupedBodyKinematics &bodyKinematics,
+    PowerSystem &pwrSystem,
     IMUFilter &imuFilter
 )
 {
@@ -24,6 +25,8 @@ RobotController::RobotController
 	this->rightBack = &rightBack;
 
     this->bodyKinematics = &bodyKinematics;
+
+    this->pwrSystem = &pwrSystem;
 	this->imuFilter = &imuFilter;
 
     float x = this->bodyKinematics->getXMountingSpacing();
@@ -277,4 +280,15 @@ bool RobotController::jump   // jumping algorithm prototype
 
 	moveTimer = 0;
     return true;
+}
+
+void RobotController::sitAndTurnOff(float time, int nPoints)
+{
+    leftFront->setStartPosition();
+    rightFront->setStartPosition();
+    leftBack->setStartPosition();
+    rightBack->setStartPosition();
+
+    moveAllLegsSmoothly(time, nPoints);
+    pwrSystem->off();
 }

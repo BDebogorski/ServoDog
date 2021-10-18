@@ -1,6 +1,7 @@
 #pragma once
 #include <Leg2DoF.hpp>
 #include <IMUFilter.hpp>
+#include <PowerSystem.hpp>
 #include <QuadrupedBodyKinematics.hpp>
 #include <QuadrupedWalkingAlgorithm.hpp>
 
@@ -17,9 +18,10 @@ private:
 	Leg2DoF* rightBack;
 
     QuadrupedBodyKinematics* bodyKinematics;
-	IMUFilter* imuFilter;
-
 	QuadrupedWalkingAlgorithm walkingAlgorithm;
+
+    PowerSystem* pwrSystem;
+    IMUFilter* imuFilter;
 
 public:
 
@@ -30,6 +32,7 @@ public:
         Leg2DoF &rightFront,
         Leg2DoF &rightBack,
         QuadrupedBodyKinematics &bodyKinematics,    // inv kinematics of body
+        PowerSystem &pwrSystem,                     // power system functions
         IMUFilter &imuFilter                        // AHRS algorithm filter
     );
 
@@ -83,4 +86,6 @@ public:
         float dt,             // delta of time
         bool stabilization    // stabilization on/off
     );
+
+    void sitAndTurnOff(float time, int nPoints);
 };
