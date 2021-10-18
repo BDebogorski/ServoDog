@@ -67,12 +67,67 @@ bool RobotController::moveAllLegs()
 	return true;
 }
 
+bool RobotController::moveAllLegsSmoothly(float time, int nPoints)
+{
+    float lXLF = leftFront->getLastXPosition();
+    float lYLF = leftFront->getLastYPosition();
+    float lZLF = leftFront->getLastZPosition();
+
+    float lXRF = rightFront->getLastXPosition();
+    float lYRF = rightFront->getLastYPosition();
+    float lZRF = rightFront->getLastZPosition();
+
+    float lXLB = leftBack->getLastXPosition();
+    float lYLB = leftBack->getLastYPosition();
+    float lZLB = leftBack->getLastZPosition();
+
+    float lXRB = rightBack->getLastXPosition();
+    float lYRB = rightBack->getLastYPosition();
+    float lZRB = rightBack->getLastZPosition();
+
+    float LFXDiff = leftFront->getXPosition() - lXLF;
+    float LFYDiff = leftFront->getYPosition() - lYLF;
+    float LFZDiff = leftFront->getZPosition() - lZLF;
+
+    float RFXDiff = rightFront->getXPosition() - lXRF;
+    float RFYDiff = rightFront->getYPosition() - lYRF;
+    float RFZDiff = rightFront->getZPosition() - lZRF;
+
+    float LBXDiff = leftBack->getXPosition() - lXLB;
+    float LBYDiff = leftBack->getYPosition() - lYLB;
+    float LBZDiff = leftBack->getZPosition() - lZLB;
+
+    float RBXDiff = rightBack->getXPosition() - lXRB;
+    float RBYDiff = rightBack->getYPosition() - lYRB;
+    float RBZDiff = rightBack->getZPosition() - lZRB;
+
+    for (int i = 0; i < nPoints+1; i++)
+	{
+        moveTimer = 0;
+
+        if(!leftFront->setPosition(lXLF+LFXDiff/nPoints*i, lYLF+LFYDiff/nPoints*i, lZLF+LFZDiff/nPoints*i)) return false;
+        if(!rightFront->setPosition(lXRF+RFXDiff/nPoints*i, lYRF+RFYDiff/nPoints*i, lZRF+RFZDiff/nPoints*i)) return false;
+        if(!leftBack->setPosition(lXLB+LBXDiff/nPoints*i, lYLB+LBYDiff/nPoints*i, lZLB+LBZDiff/nPoints*i)) return false;
+        if(!rightBack->setPosition(lXRB+RBXDiff/nPoints*i, lYRB+RBYDiff/nPoints*i, lZRB+RBZDiff/nPoints*i)) return false;
+
+        if(!moveAllLegs()) return false;
+
+        while (moveTimer < time/nPoints*100000 && i < nPoints) //delay
+		{
+			//if(stabilization) levelBody();
+		}
+    }
+
+    moveTimer = 0;
+    return true;
+}
+
 bool RobotController::levelBody()
 {
 	float xAngle = imuFilter->getXAngle()-M_PI + bodyKinematics->getXAngle();
 	float yAngle = imuFilter->getYAngle()-M_PI + bodyKinematics->getYAngle();
 
-    bodyKinematics->setBodyAngle(xAngle, yAngle);
+    if(!bodyKinematics->setBodyAngle(xAngle, yAngle)) return false;
 
     return moveAllLegs();
 }
@@ -172,56 +227,54 @@ bool RobotController::goForAzimuth
 	return walk(time, pause, nPoints, zHeight, stepHeight, xLengthL, xLengthR, 0, 0, stabilization);
 }
 
-bool RobotController::jump(float minH, float maxH, float a)    // prototype
+bool RobotController::jump   // jumping algorithm prototype
+(
+    float xAcceleration,
+    float yAcceleration,
+    float zAcceleration,
+    float xZero,
+    float yZero,
+    float xAmplitude,
+    float yAmplitude,
+    float zMin,
+    float zMax,
+    float dt,
+    bool stabilization
+)
 {
-    float t;
+    float t = 0;
 
     float x;
     float y;
     float z;
 
-    float aX = 20;
-    float aY = 0;
-
-    float xMax = 0.03;
-    float yMax = 0;
-
-    int nPoints = 100;
-    float dt =  0.01;
-
-    bool stabilization = false;
-
-    for (int i = 0; i < nPoints; i++)
+    while(z < zMax)
 	{
 		moveTimer = 0;
 
-        t = i*dt;
+        x = xZero + xAcceleration*t*t/2;    // x = a*t^2/2
+        y = yZero + yAcceleration*t*t/2;
+        z = zMin + zAcceleration*t*t/2;
 
-        x =-0.01+aX*t*t/2;
-        y = aY*t*t/2;
-        z = minH + a*t*t/2;
-
-        if(x > xMax) x = xMax;
-        if(y > yMax) y = yMax;
-        if(z > maxH) break;
-
-        if(!leftFront->setPosition(x, y, z)) return false;
-        if(!leftBack->setPosition(x, y, z)) return false;
-
-        if(!rightFront->setPosition(x, y, z)) return false;
-        if(!rightBack->setPosition(x, y, z)) return false;
-
+        if(x > xAmplitude) x = xAmplitude;
+        if(x < -xAmplitude) x = -xAmplitude;
+        if(y > yAmplitude) y = yAmplitude;
+        if(y < -yAmplitude) y = -yAmplitude;
+    
+        if(!bodyKinematics->setAllLegsPosition(x, y, z)) return false;
         if(!moveAllLegs()) return false;
 
-		while (moveTimer < dt*200000 && i < nPoints) //delay
+		while (moveTimer < dt*200000) //delay
 		{
 			if(stabilization) levelBody();
 		}
+
+        t += dt;    // time
 	}
 
-	moveTimer = 0;
-    if(!bodyKinematics->setAllLegsPosition(-0.01, 0, minH)) return false;
+    if(!bodyKinematics->setAllLegsPosition(xZero, yZero, zMin)) return false;
     if(!moveAllLegs()) return false;
 
+	moveTimer = 0;
     return true;
 }

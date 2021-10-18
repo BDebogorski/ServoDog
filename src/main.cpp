@@ -35,8 +35,8 @@ IMU imuSensor;
 IMUFilter filter;
 RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
-QuadrupedBodyKinematics robot(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
-RobotController controller(frontLeft, backLeft, frontRight, backRight, robot, filter);
+QuadrupedBodyKinematics bodyKinematics(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
+RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, filter);
 
 void getAngle()
 {
@@ -101,14 +101,16 @@ void setup()
   Timer1.initialize(10);
   Timer1.attachInterrupt(moveClock);
 
-  robot.setAllLegsPosition(0, 0, 0.07);
+  bodyKinematics.setAllLegsPosition(0, 0, 0.07);
+  controller.moveAllLegsSmoothly(2, 100);
+
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveAllLegs();
 
   controller.setStartLegs(true); //leftFront, rightBack
 
   imuSensor.init(10);
-  filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.01, dt);
+  filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.0001, dt);
 
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
@@ -126,9 +128,12 @@ void loop()
   //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
   //controller.walk(0.06, 0.1, 20, 0.07, 0.008, 0.01, 0.01, 0, 0, false);
   //controller.levelBody();
-  controller.jump(0.05, 0.08, 4);
-  delay(150);
+  
+  //controller.jump(-1.2, 0, 0.8, 0, 0, 0.04, 0, 0.065, 0.085, 0.0001, false);
+  //delay(110);
 
+  //bodyKinematics.setAllLegsPosition(0.02, 0, 0.08);
+  //controller.moveAllLegsSmoothly(1, 100);
   //printImuSensor();
   //printOrientation();
 

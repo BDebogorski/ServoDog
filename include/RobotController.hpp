@@ -4,8 +4,8 @@
 #include <QuadrupedBodyKinematics.hpp>
 #include <QuadrupedWalkingAlgorithm.hpp>
 
-extern volatile int moveTimer;
-void moveClock();
+extern volatile int moveTimer;    // timer variable
+void moveClock();                 // interrupt function
 
 class RobotController
 {
@@ -29,18 +29,19 @@ public:
         Leg2DoF &leftBack,
         Leg2DoF &rightFront,
         Leg2DoF &rightBack,
-        QuadrupedBodyKinematics &bodyKinematics,
-        IMUFilter &imuFilter
+        QuadrupedBodyKinematics &bodyKinematics,    // inv kinematics of body
+        IMUFilter &imuFilter                        // AHRS algorithm filter
     );
 
     bool setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing);    // set all body kinematics
 
-    bool moveAllLegs();    // moving all legs to goal positions
+    bool moveAllLegs();                                   // moving all legs to goal positions
+    bool moveAllLegsSmoothly(float time, int nPoints);    // moving smoothly all legs to goal positions
 
 	bool levelBody();                    // level body to angle
 	void setStartLegs(bool startLeg);    // set first moving leg pair (true - leftFront, rightBack)
 
-	bool walk
+	bool walk    // dynamic walking algorithm
 	(
 		float time,           // time of one step [s]
 		float pause,          // time between steps [s]
@@ -68,5 +69,18 @@ public:
 		bool stabilization    // stabilization on/off
 	);
 
-    bool jump(float minH, float maxH, float a);
+    bool jump   // jumping algorithm prototype
+    (
+        float xAcceleration,  // acceleration on x axis
+        float yAcceleration,  // acceleration on y axis
+        float zAcceleration,  // acceleration on z axis
+        float xZero,          // y axis zero position
+        float yZero,          // y axis zero position
+        float xAmplitude,     // maximum amplitude of y axis
+        float yAmplitude,     // maximum amplitude of y axis
+        float zMin,           // minimum z body position
+        float zMax,           // maximum z body position
+        float dt,             // delta of time
+        bool stabilization    // stabilization on/off
+    );
 };

@@ -56,9 +56,6 @@ public:
 	bool setXSpacing(float spacing);    // set spacing between legs
 	bool setYSpacing(float spacing);
 
-    void setXBodyAngle(float angle);    // set body orientation offset
-	void setYBodyAngle(float angle);
-
 	bool setAllLegsPosition(float x, float y, float z);    // set same positions of all the legs
 	bool setBodyAngle(float xAngle, float yAngle);         // set angle of body
 
