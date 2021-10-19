@@ -287,11 +287,10 @@ bool RobotController::goForAzimuth
 
 bool RobotController::jump   // jumping algorithm prototype
 (
-    float xAcceleration,
+    float xLeftAcceleration,
+    float xRightAcceleration,
     float yAcceleration,
     float zAcceleration,
-    float xZero,
-    float yZero,
     float xAmplitude,
     float yAmplitude,
     float zMin,
@@ -302,24 +301,41 @@ bool RobotController::jump   // jumping algorithm prototype
 {
     float t = 0;
 
-    float x;
+    float xLeft;
+    float xRight;
     float y;
     float z;
 
-    while(z < zMax)
+    while
+    (
+        leftFront->getZPosition() + leftFront->getXOffset() < zMax &&
+        rightFront->getZPosition() + rightFront->getXOffset() < zMax &&
+        leftBack->getZPosition() + leftBack->getXOffset() < zMax &&
+        rightBack->getZPosition() + rightBack->getXOffset() < zMax
+    )
 	{
 		moveTimer = 0;
 
-        x = xZero + xAcceleration*t*t/2;    // x = a*t^2/2
-        y = yZero + yAcceleration*t*t/2;
+        xLeft = xLeftAcceleration*t*t/2;    // x = a*t^2/2
+        xRight = xRightAcceleration*t*t/2;    // x = a*t^2/2
+        y = yAcceleration*t*t/2;
         z = zMin + zAcceleration*t*t/2;
 
-        if(x > xAmplitude) x = xAmplitude;
-        if(x < -xAmplitude) x = -xAmplitude;
+        if(xLeft > xAmplitude) xLeft = xAmplitude;
+        if(xLeft < -xAmplitude) xLeft = -xAmplitude;
+
+        if(xRight > xAmplitude) xRight = xAmplitude;
+        if(xRight < -xAmplitude) xRight = -xAmplitude;
+
         if(y > yAmplitude) y = yAmplitude;
         if(y < -yAmplitude) y = -yAmplitude;
     
-        if(!bodyKinematics->setAllLegsPosition(x, y, z)) return false;
+        if(!leftFront->setPosition(xLeft, y, z)) return false;
+        if(!leftBack->setPosition(xLeft, y, z)) return false;
+
+        if(!rightFront->setPosition(xRight, y, z)) return false;
+        if(!rightBack->setPosition(xRight, y, z)) return false;
+
         if(!moveAllLegs()) return false;
 
 		while (moveTimer < dt*200000) //delay
@@ -330,15 +346,53 @@ bool RobotController::jump   // jumping algorithm prototype
         t += dt;    // time
 	}
 
-    if(!bodyKinematics->setAllLegsPosition(xZero, yZero, zMin)) return false;
+    if(!bodyKinematics->setAllLegsPosition(0, 0, zMin)) return false;
     if(!moveAllLegs()) return false;
 
 	moveTimer = 0;
     return true;
 }
 
+bool RobotController::jumpForAzimuth
+(
+    float xAcceleration,
+    float zAcceleration,
+    float amplitude,
+    float zMin,
+    float zMax,
+    float dt,
+    float actualAngle,
+	float azimuth,
+	float fullStepAngle,
+    bool stabilization
+)
+{
+    float xRightAcceleration = -fabs(xAcceleration) * map(actualAngle-azimuth, -2*M_PI, 2*M_PI, -M_PI/fullStepAngle, M_PI/fullStepAngle);
+	float xLeftAcceleration;
+
+	xLeftAcceleration = -xRightAcceleration;
+
+	xRightAcceleration += (xRightAcceleration-xAcceleration);
+	xLeftAcceleration += (xLeftAcceleration-xAcceleration);
+
+	if(xLeftAcceleration > xAcceleration) xLeftAcceleration = xAcceleration;
+	if(xLeftAcceleration < -xAcceleration) xLeftAcceleration = -xAcceleration;
+
+    Serial.println(xRightAcceleration);
+
+    if(xRightAcceleration > xAcceleration) xRightAcceleration = xAcceleration;
+	if(xRightAcceleration < -xAcceleration) xRightAcceleration = -xAcceleration;
+
+    Serial.println(xRightAcceleration);
+
+    return jump(xLeftAcceleration, xRightAcceleration, 0, zAcceleration, amplitude, 0, zMin, zMax, dt, stabilization);
+}
+
 void RobotController::sitAndTurnOff(float time, int nPoints)
 {
+    setBody(0, 0, 0, 0, 0, bodyKinematics->getXMountingSpacing(), bodyKinematics->getYMountingSpacing());
+    moveBodySmoothly(time, nPoints);
+
     leftFront->setStartPosition();
     rightFront->setStartPosition();
     leftBack->setStartPosition();

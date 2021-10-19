@@ -61,10 +61,6 @@ Leg2DoF::Leg2DoF
     this->hip = &hip;
     this->knee = &knee;
 
-    this->xStart = xStart;
-    this->yStart = yStart;
-    this->zStart = zStart;
-
     xPosition = 0;
     yPosition = 0;
     zPosition = 0;
@@ -88,6 +84,10 @@ Leg2DoF::Leg2DoF
 
     if(xSide) xStart = -xStart;
     if(ySide) yStart = -yStart;
+
+    this->xStart = xStart;
+    this->yStart = yStart;
+    this->zStart = zStart;
 
     setPosition(xStart, yStart, zStart);
 

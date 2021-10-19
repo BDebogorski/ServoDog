@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <TimerOne.h>
 #include <MsTimer2.h>
+#include <RN487x_BLE.h>
 #include <InternalTemperature.h>
 
 #include <RC.hpp>
@@ -26,10 +27,10 @@ backRightHip(14, 4, 1.1, true),
 backRightKnee(15, 12, 1.13, false);
 
 Leg2DoF
-frontLeft(0.0425, 0.055, 0.0058, 0.06, 0.06, false, true, true, 0.003, 0, 0.025, frontLeftHip, frontLeftKnee),
-backLeft(0.0425, 0.055, 0.0058, -0.06, -0.06, true, true, true, 0.003, 0, 0.025, backLeftHip, backLeftKnee),
-frontRight(0.0425, 0.055, 0.0058, 0.06, 0.06, false, false, true, 0.003, 0, 0.025, frontRightHip, frontRightKnee),
-backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, 0.003, 0, 0.025, backRightHip, backRightKnee);
+frontLeft(0.0425, 0.055, 0.0058, 0.06, 0.06, false, true, true, 0.00488, 0, 0.021, frontLeftHip, frontLeftKnee),
+backLeft(0.0425, 0.055, 0.0058, -0.06, -0.06, true, true, true, 0.00488, 0, 0.0211, backLeftHip, backLeftKnee),
+frontRight(0.0425, 0.055, 0.0058, 0.06, 0.06, false, false, true, 0.00488, 0, 0.021, frontRightHip, frontRightKnee),
+backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, 0.00488, 0, 0.021, backRightHip, backRightKnee);
 
 IMU imuSensor;
 IMUFilter filter;
@@ -101,15 +102,6 @@ void setup()
   Timer1.initialize(10);
   Timer1.attachInterrupt(moveClock);
 
-  bodyKinematics.setAllLegsPosition(0, 0, 0.07);
-  controller.moveAllLegsSmoothly(0.8, 100);
-
-  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveAllLegs();
-  
-  controller.setBody(0.02, 0, 0, 0, -M_PI/18, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
-
   controller.setStartLegs(true); //leftFront, rightBack
 
   imuSensor.init(10);
@@ -117,12 +109,53 @@ void setup()
 
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
-  delay(1000);
 
   imuSensor.calibrate(1, 0.1);
-  delay(1000);
+
+  bodyKinematics.setAllLegsPosition(0, 0, 0.08);
+  controller.moveAllLegsSmoothly(0.8, 100);
+  
+  //controller.setBody(0, 0, 0, 0, 0, 0.12, 0.07);
+  //controller.setBody(0.01, 0, 0, 0, -M_PI/18, 0.12, 0.08);
+  //controller.moveBodySmoothly(0.8, 100);
 
   filter.zeroZAngle();
+/*
+  bodyKinematics.setAllLegsPosition(0, 0, 0.065);
+  controller.moveAllLegsSmoothly(0.8, 100);
+
+  for(int i = 0; i<10; i++)
+  {
+    controller.jump(-1.2, -1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
+    delay(110);
+  }
+
+  for(int i = 0; i<10; i++)
+  {
+    controller.jump(1.2, -1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
+    delay(110);
+  }
+
+  for(int i = 0; i<5; i++)
+  {
+    controller.jump(1.2, 1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
+    delay(110);
+  }
+
+  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.5, 100);
+  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.5, 100);
+  controller.setBody(0, 0, 0, M_PI/10, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.5, 100);
+  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.5, 100);
+  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.25, 100);
+
+  controller.sitAndTurnOff(0.8, 100);
+  */
+
 }
 
 void loop()
@@ -133,7 +166,8 @@ void loop()
   //controller.levelBody();
 
   //controller.jump(-1.2, 0, 0.8, 0, 0, 0.04, 0, 0.065, 0.085, 0.0001, false);
-  //delay(110);
+  controller.jumpForAzimuth(1.2, 0.8, 0.04, 0.065, 0.085, 0.0001, filter.getZAngle(), 0, M_PI/20, false);
+  delay(80);
 
   //bodyKinematics.setAllLegsPosition(0.02, 0, 0.08);
   //controller.moveAllLegsSmoothly(1, 100);
@@ -169,3 +203,89 @@ void loop()
     }
   }
 }
+
+/*
+//include <Arduino.h>
+#include <RN487x_BLE.h>
+
+#define debugSerial Serial
+#define bleSerial Serial1
+
+#define SERIAL_TIMEOUT  10000
+
+// MAC address added to the white list
+const char* peerAddressToScan = "F0A1B40302D3" ;
+
+void setup()
+{
+
+  pwrSystem.on();
+
+  Serial.begin(9600);
+  Serial.println("dzialam");
+
+  while ((!debugSerial) && (millis() < SERIAL_TIMEOUT)) ;
+  
+  debugSerial.begin(115200) ;
+
+  debugSerial.println("ok");
+
+  // Set the optional debug stream
+  rn487xBle.setDiag(debugSerial) ;
+  // Initialize the BLE hardware
+  rn487xBle.hwInit() ;
+  // Open the communication pipe with the BLE module
+  bleSerial.begin(rn487xBle.getDefaultBaudRate()) ;
+  // Assign the BLE serial port to the BLE library
+  rn487xBle.initBleStream(&bleSerial) ;
+  // Finalize the init. process
+  if (rn487xBle.swInit())
+  {
+    debugSerial.println("Init. procedure done!") ;
+  }
+  else
+  {
+    debugSerial.print("adress: ");
+    debugSerial.println("Init. procedure failed!") ;
+    debugSerial.println(rn487xBle.getBtAddress());
+    rn487xBle.enterCommandMode() ;
+    rn487xBle.setDefaultServices(DEVICE_INFO_SERVICE);
+    rn487xBle.reboot() ;
+    //while(1) ;
+  }
+
+
+  // >> Configuring the BLE
+  // First enter in command/configuration mode
+  rn487xBle.enterCommandMode() ;
+  // Remove GATT services
+  rn487xBle.setDefaultServices(NO_SERVICE) ;
+  // Set passive scan and does not filter out duplicate scan results
+  rn487xBle.setSupportedFeatures(PASSIVE_SCAN_BMP | NO_DUPLICATE_SCAN_BMP) ;
+  // Take into account the settings by issuing a reboot
+  rn487xBle.reboot() ;
+  rn487xBle.enterCommandMode() ;
+  // Clear the white list
+  rn487xBle.clearWhiteList() ;
+  // Add the MAC address to scan in the white list
+  rn487xBle.addMacAddrWhiteList(true, peerAddressToScan) ;
+  // Halt advertisement
+  rn487xBle.stopAdvertising() ;
+
+  // Start scanning
+  rn487xBle.startScanning() ;
+
+  debugSerial.println("Starter Kit as a Central with filtering a device added to the white list when performing a scan") ;
+  debugSerial.println("===============================================================================================") ;
+  
+}
+
+void loop()
+{
+  // Display the result of the scanning
+  if (bleSerial.available())
+  {
+    debugSerial.print((char)bleSerial.read()) ;
+  }
+}
+*/

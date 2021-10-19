@@ -73,19 +73,32 @@ public:
 		bool stabilization    // stabilization on/off
 	);
 
-    bool jump   // jumping algorithm prototype
+    bool jump   // jumping algorithm
     (
-        float xAcceleration,  // acceleration on x axis
-        float yAcceleration,  // acceleration on y axis
-        float zAcceleration,  // acceleration on z axis
-        float xZero,          // y axis zero position
-        float yZero,          // y axis zero position
-        float xAmplitude,     // maximum amplitude of y axis
-        float yAmplitude,     // maximum amplitude of y axis
-        float zMin,           // minimum z body position
-        float zMax,           // maximum z body position
-        float dt,             // delta of time
-        bool stabilization    // stabilization on/off
+        float xAcceleration,        // acceleration on x axis
+        float yLeftAcceleration,    // left legs acceleration on y axis
+		float yRightAcceleration,   // right legs acceleration on y axis
+        float zAcceleration,        // acceleration on z axis
+        float xAmplitude,           // maximum amplitude of x axis
+        float yAmplitude,           // maximum amplitude of y axis
+        float zMin,                 // minimum z body position
+        float zMax,                 // maximum z body position
+        float dt,                   // delta of time
+        bool stabilization          // stabilization on/off
+    );
+
+	bool jumpForAzimuth
+    (
+        float xAcceleration,    // acceleration on x axis
+        float zAcceleration,    // acceleration on z axis
+        float amplitude,        // maximum amplitude of x axis
+        float zMin,             // minimum z body position
+        float zMax,             // maximum z body position
+        float dt,               // delta of time
+		float actualAngle,      // z axis orientation in space
+		float azimuth,          // goal angle
+		float fullStepAngle,    // angle at which take full step
+        bool stabilization      // stabilization on/off
     );
 
     void sitAndTurnOff(float time, int nPoints);
