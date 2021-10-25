@@ -1,7 +1,6 @@
 #pragma once
 #include <Leg2DoF.hpp>
 #include <IMUFilter.hpp>
-#include <QuadrupedWalkingAlgorithm.hpp>
 
 class QuadrupedBodyKinematics
 {
@@ -13,7 +12,6 @@ private:
 	Leg2DoF* rightBack;
 
 	IMUFilter* imuFilter;
-	QuadrupedWalkingAlgorithm walkingAlgorithm;
 
 	float xSide;
 	float ySide;

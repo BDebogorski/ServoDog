@@ -102,7 +102,7 @@ void setup()
   Timer1.initialize(10);
   Timer1.attachInterrupt(moveClock);
 
-  controller.setStartLegs(true); //leftFront, rightBack
+  controller.setStartLegs(LeftFront_RightBack); //up
 
   imuSensor.init(10);
   filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.0001, dt);
@@ -110,7 +110,7 @@ void setup()
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
 
-  imuSensor.calibrate(1, 0.1);
+  //imuSensor.calibrate(1, 0.1);
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.08);
   controller.moveAllLegsSmoothly(0.8, 100);
@@ -119,43 +119,51 @@ void setup()
   //controller.setBody(0.01, 0, 0, 0, -M_PI/18, 0.12, 0.08);
   //controller.moveBodySmoothly(0.8, 100);
 
-  filter.zeroZAngle();
-/*
-  bodyKinematics.setAllLegsPosition(0, 0, 0.065);
-  controller.moveAllLegsSmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
 
-  for(int i = 0; i<10; i++)
-  {
-    controller.jump(-1.2, -1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
-    delay(110);
-  }
+  controller.setBody(0, 0, 0, -M_PI/18, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, M_PI/18, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
 
-  for(int i = 0; i<10; i++)
-  {
-    controller.jump(1.2, -1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
-    delay(110);
-  }
+  controller.setBody(0, 0, 0, 0, M_PI/12, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, 0, -M_PI/12, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
 
-  for(int i = 0; i<5; i++)
-  {
-    controller.jump(1.2, 1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
-    delay(110);
-  }
+  controller.setBody(-0.02, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0.02, 0, 0, 0, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.5, 100);
-  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.5, 100);
-  controller.setBody(0, 0, 0, M_PI/10, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.5, 100);
-  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.5, 100);
-  controller.setBody(0, 0, 0, -M_PI/10, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.25, 100);
+  controller.moveBodySmoothly(0.8, 100);
+
+  for(int i = 0; i<20; i++)
+  {
+    controller.walk(0.06, 0.1, 20, 0.08, 0.01, float(i)/800, float(i)/800, 0, 0, false);
+  }
+
+  for(int i = 0; i<20; i++)
+  {
+    controller.walk(0.06, 0.1, 20, 0.08, 0.01, -float(i)/800, -float(i)/800, 0, 0, false);
+  }
+
+  controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0, 0, 0, 0, false);
+  controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0, 0, 0, 0, false);
+
+  for(int i = 0; i<6; i++)
+  {
+    controller.jump(+1.2, +1.2, 0, 0.8, 0.04, 0, 0.065, 0.085, 0.0001, false);
+    delay(110);
+  }
 
   controller.sitAndTurnOff(0.8, 100);
-  */
-
 }
 
 void loop()
@@ -166,8 +174,8 @@ void loop()
   //controller.levelBody();
 
   //controller.jump(-1.2, 0, 0.8, 0, 0, 0.04, 0, 0.065, 0.085, 0.0001, false);
-  controller.jumpForAzimuth(1.2, 0.8, 0.04, 0.065, 0.085, 0.0001, filter.getZAngle(), 0, M_PI/20, false);
-  delay(80);
+  //controller.jumpForAzimuth(1.2, 0.8, 0.04, 0.065, 0.085, 0.0001, filter.getZAngle(), 0, M_PI/20, false);
+  //delay(80);
 
   //bodyKinematics.setAllLegsPosition(0.02, 0, 0.08);
   //controller.moveAllLegsSmoothly(1, 100);

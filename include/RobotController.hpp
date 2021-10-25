@@ -3,7 +3,7 @@
 #include <IMUFilter.hpp>
 #include <PowerSystem.hpp>
 #include <QuadrupedBodyKinematics.hpp>
-#include <QuadrupedWalkingAlgorithm.hpp>
+#include <QWA.hpp>
 
 extern volatile int moveTimer;    // timer variable
 void moveClock();                 // interrupt function
@@ -18,7 +18,7 @@ private:
 	Leg2DoF* rightBack;
 
     QuadrupedBodyKinematics* bodyKinematics;
-	QuadrupedWalkingAlgorithm walkingAlgorithm;
+	QWA walkingAlgorithm;
 
     PowerSystem* pwrSystem;
     IMUFilter* imuFilter;
@@ -75,9 +75,9 @@ public:
 
     bool jump   // jumping algorithm
     (
-        float xAcceleration,        // acceleration on x axis
-        float yLeftAcceleration,    // left legs acceleration on y axis
-		float yRightAcceleration,   // right legs acceleration on y axis
+        float xLeftAcceleration,    // acceleration on x axis
+        float xRightAcceleration,   // left legs acceleration on y axis
+		float yAcceleration,        // right legs acceleration on y axis
         float zAcceleration,        // acceleration on z axis
         float xAmplitude,           // maximum amplitude of x axis
         float yAmplitude,           // maximum amplitude of y axis
@@ -101,5 +101,5 @@ public:
         bool stabilization      // stabilization on/off
     );
 
-    void sitAndTurnOff(float time, int nPoints);
+    void sitAndTurnOff(float time, int nPoints);    // sit smoothly and turn off
 };

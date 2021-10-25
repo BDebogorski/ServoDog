@@ -32,10 +32,10 @@ RobotController::RobotController
     float x = this->bodyKinematics->getXMountingSpacing();
     float y = this->bodyKinematics->getYMountingSpacing();
 
-	walkingAlgorithm.setLeftFrontMountingPosition(x/2, y/2);
-	walkingAlgorithm.setRightFrontMountingPosition(-x/2, y/2);
-	walkingAlgorithm.setLeftBackMountingPosition(x/2, -y/2);
-	walkingAlgorithm.setRightBackMountingPosition(-x/2, -y/2);
+	walkingAlgorithm.setLeftFrontZeroPosition(x/2, y/2);
+	walkingAlgorithm.setRightFrontZeroPosition(-x/2, y/2);
+	walkingAlgorithm.setLeftBackZeroPosition(x/2, -y/2);
+	walkingAlgorithm.setRightBackZeroPosition(-x/2, -y/2);
 }
 
 bool RobotController::setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing)
@@ -208,21 +208,20 @@ bool RobotController::walk
 	float rot,
 	bool stabilization
 ){
-
-	LegCordinates LFCordinates;
-	LegCordinates RFCordinates;
-	LegCordinates LBCordinates;
-	LegCordinates RBCordinates;
+    Cordinates LFCordinates;
+	Cordinates RFCordinates;
+	Cordinates LBCordinates;
+	Cordinates RBCordinates;
 
 	while (moveTimer < pause*100000) // pause
 	{
 		if(stabilization) levelBody();
 	}
 
-	walkingAlgorithm.setLeftFrontLegPosition(leftFront->getXPosition(), leftFront->getYPosition(), leftFront->getZPosition());
-	walkingAlgorithm.setRightFrontLegPosition(rightFront->getXPosition(), rightFront->getYPosition(), rightFront->getZPosition());
-	walkingAlgorithm.setLeftBackLegPosition(leftBack->getXPosition(), leftBack->getYPosition(), leftBack->getZPosition());
-	walkingAlgorithm.setRightBackLegPosition(rightBack->getXPosition(), rightBack->getYPosition(), rightBack->getZPosition());
+	walkingAlgorithm.setLeftFrontStartPosition(leftFront->getXPosition(), leftFront->getYPosition());
+	walkingAlgorithm.setRightFrontStartPosition(rightFront->getXPosition(), rightFront->getYPosition());
+	walkingAlgorithm.setLeftBackStartPosition(leftBack->getXPosition(), leftBack->getYPosition());
+	walkingAlgorithm.setRightBackStartPosition(rightBack->getXPosition(), rightBack->getYPosition());
 
 	walkingAlgorithm.setWalkParameters(nPoints, zHeight, stepHeight, xLengthL, xLengthR, yLength, rot);
 
@@ -237,10 +236,10 @@ bool RobotController::walk
 		walkingAlgorithm.getLeftBackLegPosition(LBCordinates);
 		walkingAlgorithm.getRightBackLegPosition(RBCordinates);
 
-		if(!leftFront->setPosition(LFCordinates.xPosition, LFCordinates.yPosition, LFCordinates.zPosition)) return false;
-		if(!rightFront->setPosition(RFCordinates.xPosition, RFCordinates.yPosition, RFCordinates.zPosition)) return false;
-		if(!leftBack->setPosition(LBCordinates.xPosition, LBCordinates.yPosition, LBCordinates.zPosition)) return false;
-		if(!rightBack->setPosition(RBCordinates.xPosition, RBCordinates.yPosition, RBCordinates.zPosition)) return false;
+		if(!leftFront->setPosition(LFCordinates.x, LFCordinates.y, LFCordinates.z)) return false;
+		if(!rightFront->setPosition(RFCordinates.x, RFCordinates.y, RFCordinates.z)) return false;
+		if(!leftBack->setPosition(LBCordinates.x, LBCordinates.y, LBCordinates.z)) return false;
+		if(!rightBack->setPosition(RBCordinates.x, RBCordinates.y, RBCordinates.z)) return false;
 
         if(!moveAllLegs()) return false;
 
@@ -316,8 +315,8 @@ bool RobotController::jump   // jumping algorithm prototype
 	{
 		moveTimer = 0;
 
-        xLeft = xLeftAcceleration*t*t/2;    // x = a*t^2/2
-        xRight = xRightAcceleration*t*t/2;    // x = a*t^2/2
+        xLeft = -xLeftAcceleration*t*t/2;    // x = a*t^2/2
+        xRight = -xRightAcceleration*t*t/2;    // x = a*t^2/2
         y = yAcceleration*t*t/2;
         z = zMin + zAcceleration*t*t/2;
 
