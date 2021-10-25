@@ -113,36 +113,36 @@ void setup()
   //imuSensor.calibrate(1, 0.1);
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.08);
-  controller.moveAllLegsSmoothly(0.8, 100);
+  controller.moveAllLegsSmoothly(0.8, 100, false);
   
   //controller.setBody(0, 0, 0, 0, 0, 0.12, 0.07);
   //controller.setBody(0.01, 0, 0, 0, -M_PI/18, 0.12, 0.08);
   //controller.moveBodySmoothly(0.8, 100);
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
 
   controller.setBody(0, 0, 0, M_PI/18, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
   controller.setBody(0, 0, 0, -M_PI/18, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
 
   controller.setBody(0, 0, 0, 0, -M_PI/18, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
   controller.setBody(0, 0, 0, 0, M_PI/18, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
 
   controller.setBody(-0.02, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
   controller.setBody(0.02, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
+  controller.moveBodySmoothly(0.8, 100, false);
 
   for(int i = 0; i<20; i++)
   {

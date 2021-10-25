@@ -70,7 +70,7 @@ bool RobotController::moveAllLegs()
 	return true;
 }
 
-bool RobotController::moveBodySmoothly(float time, float nPoints)
+bool RobotController::moveBodySmoothly(float time, float nPoints, bool stabilization)
 {
     float lXLF = leftFront->getLastXOffset();
     float lYLF = leftFront->getLastYOffset();
@@ -117,7 +117,7 @@ bool RobotController::moveBodySmoothly(float time, float nPoints)
 
         while (moveTimer < time/nPoints*100000 && i < nPoints) //delay
 		{
-			//if(stabilization) levelBody();
+			if(stabilization) levelBody();
 		}
     }
 
@@ -125,7 +125,7 @@ bool RobotController::moveBodySmoothly(float time, float nPoints)
     return true;
 }
 
-bool RobotController::moveAllLegsSmoothly(float time, int nPoints)
+bool RobotController::moveAllLegsSmoothly(float time, int nPoints, bool stabilization)
 {
     float lXLF = leftFront->getLastXPosition();
     float lYLF = leftFront->getLastYPosition();
@@ -172,7 +172,7 @@ bool RobotController::moveAllLegsSmoothly(float time, int nPoints)
 
         while (moveTimer < time/nPoints*100000 && i < nPoints) //delay
 		{
-			//if(stabilization) levelBody();
+			if(stabilization) levelBody();
 		}
     }
 
@@ -390,13 +390,13 @@ bool RobotController::jumpForAzimuth
 void RobotController::sitAndTurnOff(float time, int nPoints)
 {
     setBody(0, 0, 0, 0, 0, bodyKinematics->getXMountingSpacing(), bodyKinematics->getYMountingSpacing());
-    moveBodySmoothly(time, nPoints);
+    moveBodySmoothly(time, nPoints, false);
 
     leftFront->setStartPosition();
     rightFront->setStartPosition();
     leftBack->setStartPosition();
     rightBack->setStartPosition();
 
-    moveAllLegsSmoothly(time, nPoints);
+    moveAllLegsSmoothly(time, nPoints, false);
     pwrSystem->off();
 }
