@@ -1,19 +1,19 @@
-#include <QWA.hpp>
+#include <QuadrupedWalkingAlgorithm.hpp>
 #include <math.h>
 
-void QWA::calculateDefaultEndPoint(float xLength, Leg &leg)
+void QuadrupedWalkingAlgorithm::calculateDefaultEndPoint(float xLength, Leg &leg)
 {
     leg.xDefaultEnd = -xLength/2 + (leg.xZero+xLength)*cos(rotation/2) - (leg.yZero+yLength)*sin(rotation/2) - leg.xZero;
     leg.yDefaultEnd = -yLength/2 + (leg.xZero+xLength)*sin(rotation/2) + (leg.yZero+yLength)*cos(rotation/2) - leg.yZero;
 }
 
-void QWA::setDefaultEndPoint(Leg &leg)
+void QuadrupedWalkingAlgorithm::setDefaultEndPoint(Leg &leg)
 {
     leg.xEnd = leg.xDefaultEnd;
     leg.xEnd = leg.xDefaultEnd;
 }
 
-void QWA::calculateDownLeg(int pointNumber, float xLength, Leg &leg)
+void QuadrupedWalkingAlgorithm::calculateDownLeg(int pointNumber, float xLength, Leg &leg)
 {
     float rotationRate = -pointNumber*rotation/nPoints;
     float xTranslation = leg.xStart - xLength*pointNumber/nPoints;
@@ -24,20 +24,20 @@ void QWA::calculateDownLeg(int pointNumber, float xLength, Leg &leg)
     leg.z = zBodyPosition;
 }
 
-void QWA::calculateUpLeg(int pointNumber, float xLength, Leg &leg)
+void QuadrupedWalkingAlgorithm::calculateUpLeg(int pointNumber, float xLength, Leg &leg)
 {
     leg.x = leg.xStart + (leg.xEnd-leg.xStart)*pointNumber/nPoints;
     leg.y = leg.yStart + (leg.yEnd-leg.yStart)*pointNumber/nPoints;
     leg.z = zBodyPosition - stepHeight*sin(M_PI*pointNumber/nPoints);
 }
 
-void QWA::calculateLeg(int pointNumber, float xLength, bool pair, bool defaultEndPoint, Leg &leg)
+void QuadrupedWalkingAlgorithm::calculateLeg(int pointNumber, float xLength, bool pair, bool defaultEndPoint, Leg &leg)
 {
     if(pair) calculateUpLeg(pointNumber, xLength, leg);
     else calculateDownLeg(pointNumber, xLength, leg);
 }
 
-QWA::QWA()
+QuadrupedWalkingAlgorithm::QuadrupedWalkingAlgorithm()
 {
     startLeg = LeftFront_RightBack;
     isReady = false;
@@ -48,36 +48,36 @@ QWA::QWA()
     setRightBackStartPosition(0, 0);
 }
 
-void QWA::setLeftFrontZeroPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftFrontZeroPosition(float x, float y)
 {
     leftFront.xZero = x;
     leftFront.yZero = y;
 }
 
-void QWA::setRightFrontZeroPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightFrontZeroPosition(float x, float y)
 {
     rightFront.xZero = x;
     rightFront.yZero = y;
 }
 
-void QWA::setLeftBackZeroPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftBackZeroPosition(float x, float y)
 {
     leftBack.xZero = x;
     leftBack.yZero = y;
 }
 
-void QWA::setRightBackZeroPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightBackZeroPosition(float x, float y)
 {
     rightBack.xZero = x;
     rightBack.yZero = y;
 }
 
-void QWA::setStartLeg(bool startLeg)
+void QuadrupedWalkingAlgorithm::setStartLeg(bool startLeg)
 {
     this->startLeg = startLeg;
 }
 
-bool QWA::setWalkParameters
+bool QuadrupedWalkingAlgorithm::setWalkParameters
 (
     int nPoints,
     float zBodyPosition,
@@ -112,55 +112,55 @@ bool QWA::setWalkParameters
     return true;
 }
 
-void QWA::setLeftFrontStartPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftFrontStartPosition(float x, float y)
 {
     leftFront.xStart = x;
     leftFront.yStart = y;
 }
 
-void QWA::setRightFrontStartPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightFrontStartPosition(float x, float y)
 {
     rightFront.xStart = x;
     rightFront.yStart = y;
 }
 
-void QWA::setLeftBackStartPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftBackStartPosition(float x, float y)
 {
     leftBack.xStart = x;
     leftBack.yStart = y;
 }
 
-void QWA::setRightBackStartPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightBackStartPosition(float x, float y)
 {
     rightBack.xStart = x;
     rightBack.yStart = y;
 }
 
-void QWA::setLeftFrontEndPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftFrontEndPosition(float x, float y)
 {
     leftFront.xEnd = x;
     leftFront.yEnd = y;
 }
 
-void QWA::setRightFrontEndPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightFrontEndPosition(float x, float y)
 {
     rightFront.xEnd = x;
     rightFront.yEnd = y;
 }
 
-void QWA::setLeftBackEndPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setLeftBackEndPosition(float x, float y)
 {
     leftBack.xEnd = x;
     leftBack.yEnd = y;
 }
 
-void QWA::setRightBackEndPosition(float x, float y)
+void QuadrupedWalkingAlgorithm::setRightBackEndPosition(float x, float y)
 {
     rightBack.xEnd = x;
     rightBack.yEnd = y;
 }
 
-bool QWA::calculate(int pointNumber)
+bool QuadrupedWalkingAlgorithm::calculate(int pointNumber)
 {
     if(!isReady) return false;
     else isReady = false;
@@ -185,7 +185,7 @@ bool QWA::calculate(int pointNumber)
     return true;
 }
 
-bool QWA::getLeftFrontLegPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getLeftFrontLegPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -196,7 +196,7 @@ bool QWA::getLeftFrontLegPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getRightFrontLegPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getRightFrontLegPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -207,7 +207,7 @@ bool QWA::getRightFrontLegPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getLeftBackLegPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getLeftBackLegPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -218,7 +218,7 @@ bool QWA::getLeftBackLegPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getRightBackLegPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getRightBackLegPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -229,7 +229,7 @@ bool QWA::getRightBackLegPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getLeftFrontDefaultEndPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getLeftFrontDefaultEndPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -240,7 +240,7 @@ bool QWA::getLeftFrontDefaultEndPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getRightFrontDefaultEndPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getRightFrontDefaultEndPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -251,7 +251,7 @@ bool QWA::getRightFrontDefaultEndPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getLeftBackDefaultEndPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getLeftBackDefaultEndPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 
@@ -262,7 +262,7 @@ bool QWA::getLeftBackDefaultEndPosition(Cordinates &cordinates)
     return true;
 }
 
-bool QWA::getRightBackDefaultEndPosition(Cordinates &cordinates)
+bool QuadrupedWalkingAlgorithm::getRightBackDefaultEndPosition(Cordinates &cordinates)
 {
     if(!isReady) return false;
 

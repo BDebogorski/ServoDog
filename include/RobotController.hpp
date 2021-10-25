@@ -3,7 +3,7 @@
 #include <IMUFilter.hpp>
 #include <PowerSystem.hpp>
 #include <QuadrupedBodyKinematics.hpp>
-#include <QWA.hpp>
+#include <QuadrupedWalkingAlgorithm.hpp>
 
 extern volatile int moveTimer;    // timer variable
 void moveClock();                 // interrupt function
@@ -18,7 +18,7 @@ private:
 	Leg2DoF* rightBack;
 
     QuadrupedBodyKinematics* bodyKinematics;
-	QWA walkingAlgorithm;
+	QuadrupedWalkingAlgorithm walkingAlgorithm;
 
     PowerSystem* pwrSystem;
     IMUFilter* imuFilter;

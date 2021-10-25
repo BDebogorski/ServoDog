@@ -181,6 +181,7 @@ void loop()
   //controller.moveAllLegsSmoothly(1, 100);
   //printImuSensor();
   //printOrientation();
+  //printBatteryStatus();
 
   //controller.sitAndTurnOff(0.8, 100);
 

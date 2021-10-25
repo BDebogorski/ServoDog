@@ -29,7 +29,7 @@ struct Leg
     float yEnd;
 };
 
-class QWA
+class QuadrupedWalkingAlgorithm
 {
     private:
 
@@ -58,7 +58,7 @@ class QWA
 
     public:
 
-    QWA();    // constructor
+    QuadrupedWalkingAlgorithm();    // constructor
 
     void setLeftFrontZeroPosition(float x, float y);    // zero position relative to center of body
     void setRightFrontZeroPosition(float x, float y);
