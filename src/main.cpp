@@ -110,14 +110,41 @@ void setup()
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
 
-  //imuSensor.calibrate(1, 0.1);
+  imuSensor.calibrate(1, 0.1);
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.08);
   controller.moveAllLegsSmoothly(0.8, 100, false);
-  
-  //controller.setBody(0, 0, 0, 0, 0, 0.12, 0.07);
-  //controller.setBody(0.01, 0, 0, 0, -M_PI/18, 0.12, 0.08);
-  //controller.moveBodySmoothly(0.8, 100);
+}
+
+void loop()
+{
+
+  if(pwrSystem.getBatteryLevel() == 0)
+  {
+    controller.sitAndTurnOff(0.8, 100);
+  }
+
+  if(imuSensor.getTemperature() > 60)
+  {
+    while(imuSensor.getTemperature() > 50) 
+    {
+      Serial.print("Board Overheating! (");
+      Serial.print(imuSensor.getTemperature());
+      Serial.println("*C)");
+      delay(1000);
+    }
+  }
+
+  if(InternalTemperature.readTemperatureC() > 80)
+  {
+    while(InternalTemperature.readTemperatureC() > 70) 
+    {
+      Serial.print("CPU Overheating! (");
+      Serial.print(InternalTemperature.readTemperatureC());
+      Serial.println("*C)");
+      delay(1000);
+    }
+  }
 
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100, false);
@@ -154,8 +181,10 @@ void setup()
     controller.walk(0.06, 0.1, 20, 0.08, 0.01, -float(i)/800, -float(i)/800, 0, 0, false);
   }
 
-  controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0, 0, 0, 0, false);
-  controller.walk(0.06, 0.1, 20, 0.08, 0.01, 0, 0, 0, 0, false);
+  controller.zeroByWalking(0.06, 20, 0.08, 0.01, false);
+
+  bodyKinematics.setAllLegsPosition(0, 0, 0.065);
+  controller.moveAllLegsSmoothly(0.8, 100, false);
 
   for(int i = 0; i<6; i++)
   {
@@ -164,10 +193,7 @@ void setup()
   }
 
   controller.sitAndTurnOff(0.8, 100);
-}
 
-void loop()
-{
   //controller.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
   //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
   //controller.walk(0.06, 0.1, 20, 0.07, 0.008, 0.01, 0.01, 0, 0, false);
@@ -184,33 +210,6 @@ void loop()
   //printBatteryStatus();
 
   //controller.sitAndTurnOff(0.8, 100);
-
-  if(pwrSystem.getBatteryLevel() == 0)
-  {
-    controller.sitAndTurnOff(0.8, 100);
-  }
-
-  if(imuSensor.getTemperature() > 60)
-  {
-    while(imuSensor.getTemperature() > 50) 
-    {
-      Serial.print("Board Overheating! (");
-      Serial.print(imuSensor.getTemperature());
-      Serial.println("*C)");
-      delay(1000);
-    }
-  }
-
-  if(InternalTemperature.readTemperatureC() > 80)
-  {
-    while(InternalTemperature.readTemperatureC() > 70) 
-    {
-      Serial.print("CPU Overheating! (");
-      Serial.print(InternalTemperature.readTemperatureC());
-      Serial.println("*C)");
-      delay(1000);
-    }
-  }
 }
 
 /*

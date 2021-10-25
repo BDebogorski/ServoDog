@@ -2,6 +2,7 @@
 
 #define LeftFront_RightBack 0
 #define LeftBack_RightFront 1
+#define allLegs             2
 
 struct Cordinates
 {
@@ -54,7 +55,7 @@ class QuadrupedWalkingAlgorithm
     void calculateUpLeg(int pointNumber, float xLength, Leg &leg);
     void calculateDownLeg(int pointNumber, float xLength, Leg &leg);
 
-    void calculateLeg(int pointNumber, float xLength, bool pair, bool defaultEndPoint, Leg &leg);
+    void calculateLeg(int pointNumber, float xLength, bool pair, Leg &leg);
 
     public:
 
@@ -88,7 +89,7 @@ class QuadrupedWalkingAlgorithm
     void setLeftBackEndPosition(float x, float y);
     void setRightBackEndPosition(float x, float y);
 
-    bool calculate(int poinNumber);    // calculate position for number of point in step (walking)
+    bool calculate(int poinNumber);                 // calculate position for number of point in step (walking)
 
     bool getLeftFrontLegPosition(Cordinates &cordinates);    // get current cordinates of leg (x, y, z)
     bool getRightFrontLegPosition(Cordinates &cordinates);

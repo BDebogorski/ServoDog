@@ -31,7 +31,7 @@ void QuadrupedWalkingAlgorithm::calculateUpLeg(int pointNumber, float xLength, L
     leg.z = zBodyPosition - stepHeight*sin(M_PI*pointNumber/nPoints);
 }
 
-void QuadrupedWalkingAlgorithm::calculateLeg(int pointNumber, float xLength, bool pair, bool defaultEndPoint, Leg &leg)
+void QuadrupedWalkingAlgorithm::calculateLeg(int pointNumber, float xLength, bool pair, Leg &leg)
 {
     if(pair) calculateUpLeg(pointNumber, xLength, leg);
     else calculateDownLeg(pointNumber, xLength, leg);
@@ -167,10 +167,10 @@ bool QuadrupedWalkingAlgorithm::calculate(int pointNumber)
 
     if(pointNumber > nPoints || pointNumber < 0) return false;
 
-    calculateLeg(pointNumber, xLengthL, !startLeg, true, leftFront);
-    calculateLeg(pointNumber, xLengthR, startLeg, true, rightFront);
-    calculateLeg(pointNumber, xLengthL, startLeg, true, leftBack);
-    calculateLeg(pointNumber, xLengthR, !startLeg, true, rightBack);
+    calculateLeg(pointNumber, xLengthL, !startLeg, leftFront);
+    calculateLeg(pointNumber, xLengthR, startLeg, rightFront);
+    calculateLeg(pointNumber, xLengthL, startLeg, leftBack);
+    calculateLeg(pointNumber, xLengthR, !startLeg, rightBack);
 
     if(pointNumber >= nPoints)
     {

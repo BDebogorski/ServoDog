@@ -101,5 +101,14 @@ public:
         bool stabilization      // stabilization on/off
     );
 
+	bool zeroByWalking
+	(
+		float time,
+		int nPoints,
+		float zHeight,
+		float stepHeight,
+		bool stabilization
+	);
+
     void sitAndTurnOff(float time, int nPoints);    // sit smoothly and turn off
 };

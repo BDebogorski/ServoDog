@@ -229,7 +229,7 @@ bool RobotController::walk
 	{
 		moveTimer = 0;
 
-		walkingAlgorithm.calculate(i);
+        walkingAlgorithm.calculate(i);
 
 		walkingAlgorithm.getLeftFrontLegPosition(LFCordinates);
 		walkingAlgorithm.getRightFrontLegPosition(RFCordinates);
@@ -385,6 +385,21 @@ bool RobotController::jumpForAzimuth
     Serial.println(xRightAcceleration);
 
     return jump(xLeftAcceleration, xRightAcceleration, 0, zAcceleration, amplitude, 0, zMin, zMax, dt, stabilization);
+}
+
+bool RobotController::zeroByWalking
+(
+    float time,
+    int nPoints,
+    float zHeight,
+    float stepHeight,
+    bool stabilization
+)
+{
+    if(!walk(time, 0, nPoints, zHeight, stepHeight, 0, 0, 0, 0, stabilization)) return false;
+    if(!walk(time, 0, nPoints, zHeight, stepHeight, 0, 0, 0, 0, stabilization)) return false;
+
+    return true;
 }
 
 void RobotController::sitAndTurnOff(float time, int nPoints)
