@@ -45,7 +45,7 @@ bool RobotController::setBody(float x, float y, float z, float xAngle, float yAn
     if(!bodyKinematics->setXOffset(x)) status = false;
     if(!bodyKinematics->setYOffset(y)) status = false;
     if(!bodyKinematics->setZOffset(z)) status = false;
-
+    
     if(!bodyKinematics->setBodyAngle(xAngle, yAngle)) status = false;
 
     if(!bodyKinematics->setXSpacing(xSpacing)) status = false;

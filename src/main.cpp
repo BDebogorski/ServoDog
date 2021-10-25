@@ -122,16 +122,16 @@ void setup()
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);
 
-  controller.setBody(0, 0, 0, -M_PI/18, 0, 0.12, 0.08);
-  controller.moveBodySmoothly(0.8, 100);
   controller.setBody(0, 0, 0, M_PI/18, 0, 0.12, 0.08);
+  controller.moveBodySmoothly(0.8, 100);
+  controller.setBody(0, 0, 0, -M_PI/18, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);
 
-  controller.setBody(0, 0, 0, 0, M_PI/12, 0.12, 0.08);
+  controller.setBody(0, 0, 0, 0, -M_PI/18, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);
-  controller.setBody(0, 0, 0, 0, -M_PI/12, 0.12, 0.08);
+  controller.setBody(0, 0, 0, 0, M_PI/18, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100);

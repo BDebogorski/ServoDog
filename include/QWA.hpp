@@ -22,6 +22,9 @@ struct Leg
     float xStart;
     float yStart;
 
+    float xDefaultEnd;
+    float yDefaultEnd;
+
     float xEnd;
     float yEnd;
 };
@@ -46,7 +49,8 @@ class QWA
     bool startLeg;
     bool isReady;
 
-    void setDefaultEndPoint(float xLength, Leg &leg);
+    void calculateDefaultEndPoint(float xLength, Leg &leg);
+    void setDefaultEndPoint(Leg &leg);
     void calculateUpLeg(int pointNumber, float xLength, Leg &leg);
     void calculateDownLeg(int pointNumber, float xLength, Leg &leg);
 
@@ -86,8 +90,13 @@ class QWA
 
     bool calculate(int poinNumber);    // calculate position for number of point in step (walking)
 
-    bool getLeftFrontLegPosition(Cordinates &cordinates);    // get goal cordinates of leg (x, y, z)
+    bool getLeftFrontLegPosition(Cordinates &cordinates);    // get current cordinates of leg (x, y, z)
     bool getRightFrontLegPosition(Cordinates &cordinates);
     bool getLeftBackLegPosition(Cordinates &cordinates);
     bool getRightBackLegPosition(Cordinates &cordinates);
+
+    bool getLeftFrontDefaultEndPosition(Cordinates &cordinates);    // get default goal cordinates of leg (x, y, z)
+    bool getRightFrontDefaultEndPosition(Cordinates &cordinates);
+    bool getLeftBackDefaultEndPosition(Cordinates &cordinates);
+    bool getRightBackDefaultEndPosition(Cordinates &cordinates);
 };

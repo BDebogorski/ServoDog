@@ -1,10 +1,16 @@
 #include <QWA.hpp>
 #include <math.h>
 
-void QWA::setDefaultEndPoint(float xLength, Leg &leg)
+void QWA::calculateDefaultEndPoint(float xLength, Leg &leg)
 {
-    leg.xEnd = -xLength/2 + (leg.xZero+xLength)*cos(rotation/2) - (leg.yZero+yLength)*sin(rotation/2) - leg.xZero;
-    leg.yEnd = -yLength/2 + (leg.xZero+xLength)*sin(rotation/2) + (leg.yZero+yLength)*cos(rotation/2) - leg.yZero;
+    leg.xDefaultEnd = -xLength/2 + (leg.xZero+xLength)*cos(rotation/2) - (leg.yZero+yLength)*sin(rotation/2) - leg.xZero;
+    leg.yDefaultEnd = -yLength/2 + (leg.xZero+xLength)*sin(rotation/2) + (leg.yZero+yLength)*cos(rotation/2) - leg.yZero;
+}
+
+void QWA::setDefaultEndPoint(Leg &leg)
+{
+    leg.xEnd = leg.xDefaultEnd;
+    leg.xEnd = leg.xDefaultEnd;
 }
 
 void QWA::calculateDownLeg(int pointNumber, float xLength, Leg &leg)
@@ -92,10 +98,15 @@ bool QWA::setWalkParameters
     this->yLength = yLength;
     this->rotation = rotation;
 
-    setDefaultEndPoint(xLengthL, leftFront);
-    setDefaultEndPoint(xLengthR, rightFront);
-    setDefaultEndPoint(xLengthL, leftBack);
-    setDefaultEndPoint(xLengthR, rightBack);
+    calculateDefaultEndPoint(xLengthL, leftFront);
+    calculateDefaultEndPoint(xLengthR, rightFront);
+    calculateDefaultEndPoint(xLengthL, leftBack);
+    calculateDefaultEndPoint(xLengthR, rightBack);
+
+    setDefaultEndPoint(leftFront);
+    setDefaultEndPoint(rightFront);
+    setDefaultEndPoint(leftBack);
+    setDefaultEndPoint(rightBack);
 
     isReady = true;
     return true;
@@ -163,10 +174,10 @@ bool QWA::calculate(int pointNumber)
 
     if(pointNumber >= nPoints)
     {
-        setDefaultEndPoint(xLengthL, leftFront);
-        setDefaultEndPoint(xLengthR, rightFront);
-        setDefaultEndPoint(xLengthL, leftBack);
-        setDefaultEndPoint(xLengthR, rightBack);
+        setDefaultEndPoint(leftFront);
+        setDefaultEndPoint(rightFront);
+        setDefaultEndPoint(leftBack);
+        setDefaultEndPoint(rightBack);
         startLeg = !startLeg;
     }
 
@@ -214,6 +225,50 @@ bool QWA::getRightBackLegPosition(Cordinates &cordinates)
     cordinates.x = rightBack.x;
     cordinates.y = rightBack.y;
     cordinates.z = rightBack.z;
+
+    return true;
+}
+
+bool QWA::getLeftFrontDefaultEndPosition(Cordinates &cordinates)
+{
+    if(!isReady) return false;
+
+    cordinates.x = leftFront.xDefaultEnd;
+    cordinates.y = leftFront.yDefaultEnd;
+    cordinates.z = zBodyPosition;
+
+    return true;
+}
+
+bool QWA::getRightFrontDefaultEndPosition(Cordinates &cordinates)
+{
+    if(!isReady) return false;
+
+    cordinates.x = rightFront.xDefaultEnd;
+    cordinates.y = rightFront.yDefaultEnd;
+    cordinates.z = zBodyPosition;
+
+    return true;
+}
+
+bool QWA::getLeftBackDefaultEndPosition(Cordinates &cordinates)
+{
+    if(!isReady) return false;
+
+    cordinates.x = leftBack.xDefaultEnd;
+    cordinates.y = leftBack.yDefaultEnd;
+    cordinates.z = zBodyPosition;
+
+    return true;
+}
+
+bool QWA::getRightBackDefaultEndPosition(Cordinates &cordinates)
+{
+    if(!isReady) return false;
+
+    cordinates.x = rightBack.xDefaultEnd;
+    cordinates.y = rightBack.yDefaultEnd;
+    cordinates.z = zBodyPosition;
 
     return true;
 }
