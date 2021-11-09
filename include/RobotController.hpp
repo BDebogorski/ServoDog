@@ -2,6 +2,7 @@
 #include <Leg2DoF.hpp>
 #include <IMUFilter.hpp>
 #include <PowerSystem.hpp>
+#include <RemoteControll.hpp>
 #include <QuadrupedBodyKinematics.hpp>
 #include <QuadrupedWalkingAlgorithm.hpp>
 
@@ -22,6 +23,11 @@ private:
 
     PowerSystem* pwrSystem;
     IMUFilter* imuFilter;
+	RemoteControll* remoteControll;
+
+	bool readyToControll;
+	bool zeroLeg;
+	bool isOn;
 
 public:
 
@@ -33,7 +39,8 @@ public:
         Leg2DoF &rightBack,
         QuadrupedBodyKinematics &bodyKinematics,    // inv kinematics of body
         PowerSystem &pwrSystem,                     // power system functions
-        IMUFilter &imuFilter                        // AHRS algorithm filter
+        IMUFilter &imuFilter,                       // AHRS algorithm filter
+		RemoteControll &remoteControll              // remote controller class
     );
 
     bool setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing);    // set all body kinematics
@@ -111,5 +118,22 @@ public:
 		bool stabilization
 	);
 
+	bool remoteControllTankWalk
+	(
+		float time,
+		float pause,
+		int nPoints,
+		int xJoy,
+		int yJoy,
+		float heightBody,
+		float stepHeight,
+		float maxStepLength,
+		bool stop,
+		bool stabilization
+	);
+
+	void remoteOff(bool on, float time, int nPoints);
+
     void sitAndTurnOff(float time, int nPoints);    // sit smoothly and turn off
+	bool safeController(int iMUTemperature, int CPUTemperature, int maxIMUTemperature, int maxCPUTemperature);
 };

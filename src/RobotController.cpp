@@ -16,7 +16,8 @@ RobotController::RobotController
     Leg2DoF &rightBack,
     QuadrupedBodyKinematics &bodyKinematics,
     PowerSystem &pwrSystem,
-    IMUFilter &imuFilter
+    IMUFilter &imuFilter,
+    RemoteControll &remoteControll
 )
 {
 	this->leftFront = &leftFront;
@@ -29,6 +30,8 @@ RobotController::RobotController
     this->pwrSystem = &pwrSystem;
 	this->imuFilter = &imuFilter;
 
+    this->remoteControll = &remoteControll;
+
     float x = this->bodyKinematics->getXMountingSpacing();
     float y = this->bodyKinematics->getYMountingSpacing();
 
@@ -36,6 +39,10 @@ RobotController::RobotController
 	walkingAlgorithm.setRightFrontZeroPosition(-x/2, y/2);
 	walkingAlgorithm.setLeftBackZeroPosition(x/2, -y/2);
 	walkingAlgorithm.setRightBackZeroPosition(-x/2, -y/2);
+
+    readyToControll = false;
+    zeroLeg = true;
+    isOn = false;
 }
 
 bool RobotController::setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing)
@@ -407,6 +414,56 @@ bool RobotController::zeroByWalking
     return true;
 }
 
+bool RobotController::remoteControllTankWalk
+(
+    float time,
+    float pause,
+    int nPoints,
+    int xJoy,
+    int yJoy,
+    float heightBody,
+    float stepHeight,
+    float maxStepLength,
+    bool stop,
+    bool stabilization
+)
+{
+    float left;
+    float right;
+
+    remoteControll->mixer(xJoy, yJoy, left, right, maxStepLength);
+
+    if(!stop || left != 0 || right != 0)
+    {
+        if(readyToControll)
+        {
+            if(!walk(time, pause, nPoints, heightBody, stepHeight, left, right, 0, 0, stabilization)) return false;
+        }
+
+        zeroLeg = false;
+    }
+    else
+    {
+        readyToControll = true;
+
+        if(!zeroLeg)
+        {
+            if(!zeroByWalking(time, pause, nPoints, heightBody, stepHeight, stabilization)) return false;
+            zeroLeg = true;
+        }
+      
+        if(stabilization) levelBody();
+    }
+
+    return true;
+}
+
+void RobotController::remoteOff(bool on, float time, int nPoints)
+{
+    if(isOn && !on) sitAndTurnOff(time, nPoints);
+    else if(on) isOn = true;
+}
+
 void RobotController::sitAndTurnOff(float time, int nPoints)
 {
     setBody(0, 0, 0, 0, 0, bodyKinematics->getXMountingSpacing(), bodyKinematics->getYMountingSpacing());
@@ -419,4 +476,33 @@ void RobotController::sitAndTurnOff(float time, int nPoints)
 
     moveAllLegsSmoothly(time, nPoints, false);
     pwrSystem->off();
+}
+
+bool RobotController::safeController(int iMUTemperature, int CPUTemperature, int maxIMUTemperature, int maxCPUTemperature)
+{
+  if(pwrSystem->getBatteryLevel() == 0)
+  {
+    Serial.print("Batterry low! (");
+    Serial.print(pwrSystem->getBatteryVoltage());
+    Serial.println(")");
+    return false;
+  }
+
+  if(iMUTemperature > maxIMUTemperature)
+  {
+    Serial.print("IMU Overheating! (");
+    Serial.print(iMUTemperature);
+    Serial.println("*C)");
+    return false;
+  }
+
+  if(CPUTemperature > maxCPUTemperature)
+  {
+    Serial.print("CPU Overheating! (");
+    Serial.print(CPUTemperature);
+    Serial.println("*C)");
+    return false;
+  }
+
+  return true;
 }

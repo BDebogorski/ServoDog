@@ -16,10 +16,6 @@
 
 const float dt = 0.005;
 
-float left = 0;
-float right = 0;
-bool zero = true;
-
 ServoMotor 
 frontLeftHip(2, 4, 1.12, true),
 frontLeftKnee(3, 5, 1.1, false),
@@ -42,14 +38,15 @@ backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, 0.00488, 0, 0.
 IMU imuSensor;
 IMUFilter filter;
 ADC adc(0x16, 0x17);
-RemoteControll remote;
+RemoteControll remoteControll;
 BlueControll blueRC('%');
-//RC remote(30, 33, 9, 16, 17);
 PowerSystem pwrSystem(28, 27, 7.2, 8.4, 9.9);
 QuadrupedBodyKinematics bodyKinematics(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
-RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, pwrSystem, filter);
+RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, pwrSystem, filter, remoteControll);
 
-void getAngle()
+//RC remote(30, 33, 9, 16, 17);
+
+void update()
 {
   imuSensor.readSensor();
 
@@ -115,96 +112,63 @@ void setup()
   Timer1.initialize(10);
   Timer1.attachInterrupt(moveClock);
 
-  controller.setStartLegs(LeftFront_RightBack); //up
-
   imuSensor.init(10);
-  //filter.init(0.05, 0.001, 0.05, 0.001, 0.1, 0.0001, dt);
-  filter.init(0.03, 0.00001, 0.3, 0.00001, 0.1, 0.01, dt);
-  MsTimer2::set(dt*1000, getAngle);
-  MsTimer2::start();
-
   imuSensor.calibrate(1, 0.1);
+  filter.init(0.03, 0.00001, 0.3, 0.00001, 0.1, 0.01, dt);
+  MsTimer2::set(dt*1000, update);
+  MsTimer2::start();
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.08);
   controller.moveAllLegsSmoothly(0.8, 100, false);
+  controller.setStartLegs(LeftFront_RightBack); //up
 
-  remote.setMixer(1000, 2000, 1000, 2000, 20);
+  remoteControll.setMixer(1000, 2000, 1000, 2000, 20);
 
   filter.zeroZAngle();
-
-  //delay(2000);
-  //controller.sitAndTurnOff(0.8, 100);
 }
+
+float h = 80;
+float x = 0;
+float yAngle = 0;
 
 void loop()
 {
-
-  if(pwrSystem.getBatteryLevel() == 0)
+  if(!controller.safeController(imuSensor.getTemperature(), InternalTemperature.readTemperatureC(), 45, 70))
   {
-    controller.sitAndTurnOff(0.8, 100);
+    controller.sitAndTurnOff(0.3, 100);
   }
-
-  if(imuSensor.getTemperature() > 60)
-  {
-    while(imuSensor.getTemperature() > 50) 
-    {
-      Serial.print("Board Overheating! (");
-      Serial.print(imuSensor.getTemperature());
-      Serial.println("*C)");
-      delay(1000);
-    }
-  }
-
-  if(InternalTemperature.readTemperatureC() > 80)
-  {
-    while(InternalTemperature.readTemperatureC() > 70) 
-    {
-      Serial.print("CPU Overheating! (");
-      Serial.print(InternalTemperature.readTemperatureC());
-      Serial.println("*C)");
-      delay(1000);
-    }
-  }
-
-  //blueRC.recive();
-
-  
-  //blueRC.recive();
 
   if(blueRC.isReady())
   {
-    remote.getValues(blueRC.getReciveData());
-    remote.mixer(remote.getLeftJoyX(), remote.getLeftJoyY(), left, right, 0.03);
-    Serial.print(left,10);
-    Serial.print(" ");
-    Serial.println(right,10);
-    //Serial.println(blueRC.getReciveData());
-
-    //if(!remote.getLeftSwitch())
-    //{
-    //  controller.sitAndTurnOff(0.8, 100);
-    //}
+    remoteControll.getValues(blueRC.getReciveData());
   }
 
-    if(left != 0 || right != 0)
-    {
-        controller.walk(0.06, 0.1, 20, 0.08, 0.01, left, right, 0, 0, false);
-        zero = false;
-    }
-    else
-    {
-      if(zero == false)
-      {
-        controller.zeroByWalking(0.06, 0.1, 20, 0.08, 0.01, false);
-        zero = true;
-      }
-      controller.levelBody();
-      //controller.zeroByWalking(0.06, 20, 0.08, 0.01, false);
-    }
+  if(h != map(remoteControll.getLeftPotentiometer(), 1000, 2000, 40, 80))
+  {
+    h = map(remoteControll.getLeftPotentiometer(), 1000, 2000, 40, 80);
+    bodyKinematics.setAllLegsPosition(0, 0, h/1000);
+    controller.moveAllLegsSmoothly(1, 50, false);
+  }
 
-  //Serial.print("left: ");
-  //Serial.println(adc.getLeftData());
-  //controller.levelBody();
+  if(x != map(remoteControll.getRightJoyY(), 1000, 2000, -15, 15))
+  {
+    x = map(remoteControll.getRightJoyY(), 1000, 2000, -15, 15);
+    bodyKinematics.setAllLegsPosition(x/1000, 0, h/1000);
+    controller.moveAllLegsSmoothly(0.4, 50, false);
+  }
+
+  if(yAngle != map(remoteControll.getRightJoyX(), 1000, 2000, -10, 10) && !remoteControll.getRightSwitch())
+  {
+    yAngle = map(remoteControll.getRightJoyX(), 1000, 2000, -10, 10);
+    bodyKinematics.setBodyAngle(yAngle/180*M_PI, 0);
+    controller.moveBodySmoothly(0.4, 50, false);
+  }
+
+  if(remoteControll.getRightSwitch()) controller.levelBody();
+
+  controller.remoteControllTankWalk(0.06, 0.1, 20, remoteControll.getLeftJoyX(), remoteControll.getLeftJoyY(), h/1000, 0.01, 0.03, true, false);
+  controller.remoteOff(remoteControll.getLeftSwitch(), 0.8, 100);
+
 /*
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100, false);
@@ -267,7 +231,7 @@ void loop()
   //controller.moveAllLegsSmoothly(1, 100);
   //printImuSensor();
   //printOrientation();
-  //printBatteryStatus();
+  printBatteryStatus();
 
   //controller.sitAndTurnOff(0.8, 100);
 }
