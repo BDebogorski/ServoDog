@@ -104,6 +104,7 @@ public:
 	bool zeroByWalking
 	(
 		float time,
+		float pause,
 		int nPoints,
 		float zHeight,
 		float stepHeight,

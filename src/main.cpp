@@ -6,12 +6,19 @@
 
 #include <RC.hpp>
 #include <IMU.hpp>
+#include <ADC.hpp>
+#include <BlueControll.hpp>
+#include <RemoteControll.hpp>
 #include <IMUFilter.hpp>
 #include <PowerSystem.hpp>
 #include <QuadrupedBodyKinematics.hpp>
 #include <RobotController.hpp>
 
 const float dt = 0.005;
+
+float left = 0;
+float right = 0;
+bool zero = true;
 
 ServoMotor 
 frontLeftHip(2, 4, 1.12, true),
@@ -34,8 +41,11 @@ backRight(0.0425, 0.055, 0.0058, -0.06, -0.06, true, false, true, 0.00488, 0, 0.
 
 IMU imuSensor;
 IMUFilter filter;
-RC remote(30, 33, 9, 16, 17);
-PowerSystem pwrSystem(28, 27, 7, 8.4, 9.9);
+ADC adc(0x16, 0x17);
+RemoteControll remote;
+BlueControll blueRC('%');
+//RC remote(30, 33, 9, 16, 17);
+PowerSystem pwrSystem(28, 27, 7.2, 8.4, 9.9);
 QuadrupedBodyKinematics bodyKinematics(0.12, 0.08, frontLeft, backLeft, frontRight, backRight);
 RobotController controller(frontLeft, backLeft, frontRight, backRight, bodyKinematics, pwrSystem, filter);
 
@@ -45,13 +55,15 @@ void getAngle()
 
   filter.update
   (
-    imuSensor.getAccX(),
-    imuSensor.getAccY(),
+    -imuSensor.getAccX(),
+    -imuSensor.getAccY(),
     imuSensor.getAccZ(),
-    imuSensor.getGyroX(),
-    imuSensor.getGyroY(),
-    imuSensor.getGyroZ()
+    -imuSensor.getGyroX(),
+    -imuSensor.getGyroY(),
+    -imuSensor.getGyroZ()
   );
+
+  blueRC.recive();
 }
 
 void printImuSensor()
@@ -97,6 +109,7 @@ void setup()
   pwrSystem.on();
 
   Serial.begin(9600);
+  Serial1.begin(9600);
   delay(100);
 
   Timer1.initialize(10);
@@ -105,8 +118,8 @@ void setup()
   controller.setStartLegs(LeftFront_RightBack); //up
 
   imuSensor.init(10);
-  filter.init(0.03, 0.00001, 0.03, 0.00001, 0.1, 0.0001, dt);
-
+  //filter.init(0.05, 0.001, 0.05, 0.001, 0.1, 0.0001, dt);
+  filter.init(0.03, 0.00001, 0.3, 0.00001, 0.1, 0.01, dt);
   MsTimer2::set(dt*1000, getAngle);
   MsTimer2::start();
 
@@ -114,6 +127,13 @@ void setup()
 
   bodyKinematics.setAllLegsPosition(0, 0, 0.08);
   controller.moveAllLegsSmoothly(0.8, 100, false);
+
+  remote.setMixer(1000, 2000, 1000, 2000, 20);
+
+  filter.zeroZAngle();
+
+  //delay(2000);
+  //controller.sitAndTurnOff(0.8, 100);
 }
 
 void loop()
@@ -146,6 +166,46 @@ void loop()
     }
   }
 
+  //blueRC.recive();
+
+  
+  //blueRC.recive();
+
+  if(blueRC.isReady())
+  {
+    remote.getValues(blueRC.getReciveData());
+    remote.mixer(remote.getLeftJoyX(), remote.getLeftJoyY(), left, right, 0.03);
+    Serial.print(left,10);
+    Serial.print(" ");
+    Serial.println(right,10);
+    //Serial.println(blueRC.getReciveData());
+
+    //if(!remote.getLeftSwitch())
+    //{
+    //  controller.sitAndTurnOff(0.8, 100);
+    //}
+  }
+
+    if(left != 0 || right != 0)
+    {
+        controller.walk(0.06, 0.1, 20, 0.08, 0.01, left, right, 0, 0, false);
+        zero = false;
+    }
+    else
+    {
+      if(zero == false)
+      {
+        controller.zeroByWalking(0.06, 0.1, 20, 0.08, 0.01, false);
+        zero = true;
+      }
+      controller.levelBody();
+      //controller.zeroByWalking(0.06, 20, 0.08, 0.01, false);
+    }
+
+  //Serial.print("left: ");
+  //Serial.println(adc.getLeftData());
+  //controller.levelBody();
+/*
   controller.setBody(0, 0, 0, 0, 0, 0.12, 0.08);
   controller.moveBodySmoothly(0.8, 100, false);
 
@@ -193,7 +253,7 @@ void loop()
   }
 
   controller.sitAndTurnOff(0.8, 100);
-
+*/
   //controller.walk(0.06, 0.1, 20, 0.08, 0.005, 0.02, 0.02, 0, 0, false);
   //controller.goForAzimuth(0.06, 0.1, 20, 0.08, 0.015, 0.02, filter.getZAngle(), 0, M_PI/12, false);
   //controller.walk(0.06, 0.1, 20, 0.07, 0.008, 0.01, 0.01, 0, 0, false);
@@ -211,89 +271,3 @@ void loop()
 
   //controller.sitAndTurnOff(0.8, 100);
 }
-
-/*
-//include <Arduino.h>
-#include <RN487x_BLE.h>
-
-#define debugSerial Serial
-#define bleSerial Serial1
-
-#define SERIAL_TIMEOUT  10000
-
-// MAC address added to the white list
-const char* peerAddressToScan = "F0A1B40302D3" ;
-
-void setup()
-{
-
-  pwrSystem.on();
-
-  Serial.begin(9600);
-  Serial.println("dzialam");
-
-  while ((!debugSerial) && (millis() < SERIAL_TIMEOUT)) ;
-  
-  debugSerial.begin(115200) ;
-
-  debugSerial.println("ok");
-
-  // Set the optional debug stream
-  rn487xBle.setDiag(debugSerial) ;
-  // Initialize the BLE hardware
-  rn487xBle.hwInit() ;
-  // Open the communication pipe with the BLE module
-  bleSerial.begin(rn487xBle.getDefaultBaudRate()) ;
-  // Assign the BLE serial port to the BLE library
-  rn487xBle.initBleStream(&bleSerial) ;
-  // Finalize the init. process
-  if (rn487xBle.swInit())
-  {
-    debugSerial.println("Init. procedure done!") ;
-  }
-  else
-  {
-    debugSerial.print("adress: ");
-    debugSerial.println("Init. procedure failed!") ;
-    debugSerial.println(rn487xBle.getBtAddress());
-    rn487xBle.enterCommandMode() ;
-    rn487xBle.setDefaultServices(DEVICE_INFO_SERVICE);
-    rn487xBle.reboot() ;
-    //while(1) ;
-  }
-
-
-  // >> Configuring the BLE
-  // First enter in command/configuration mode
-  rn487xBle.enterCommandMode() ;
-  // Remove GATT services
-  rn487xBle.setDefaultServices(NO_SERVICE) ;
-  // Set passive scan and does not filter out duplicate scan results
-  rn487xBle.setSupportedFeatures(PASSIVE_SCAN_BMP | NO_DUPLICATE_SCAN_BMP) ;
-  // Take into account the settings by issuing a reboot
-  rn487xBle.reboot() ;
-  rn487xBle.enterCommandMode() ;
-  // Clear the white list
-  rn487xBle.clearWhiteList() ;
-  // Add the MAC address to scan in the white list
-  rn487xBle.addMacAddrWhiteList(true, peerAddressToScan) ;
-  // Halt advertisement
-  rn487xBle.stopAdvertising() ;
-
-  // Start scanning
-  rn487xBle.startScanning() ;
-
-  debugSerial.println("Starter Kit as a Central with filtering a device added to the white list when performing a scan") ;
-  debugSerial.println("===============================================================================================") ;
-  
-}
-
-void loop()
-{
-  // Display the result of the scanning
-  if (bleSerial.available())
-  {
-    debugSerial.print((char)bleSerial.read()) ;
-  }
-}
-*/

@@ -2,7 +2,6 @@
 
 #define LeftFront_RightBack 0
 #define LeftBack_RightFront 1
-#define allLegs             2
 
 struct Cordinates
 {

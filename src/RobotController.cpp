@@ -182,8 +182,12 @@ bool RobotController::moveAllLegsSmoothly(float time, int nPoints, bool stabiliz
 
 bool RobotController::levelBody()
 {
-	float xAngle = imuFilter->getXAngle()-M_PI + bodyKinematics->getXAngle();
-	float yAngle = imuFilter->getYAngle()-M_PI + bodyKinematics->getYAngle();
+	float xAngle = imuFilter->getXAngle()-M_PI;// + bodyKinematics->getXAngle();
+	float yAngle = imuFilter->getYAngle()-M_PI;// + bodyKinematics->getYAngle();
+
+    //Serial.print(xAngle);
+    //Serial.print(" ");
+    //Serial.println(yAngle);
 
     if(!bodyKinematics->setBodyAngle(xAngle, yAngle)) return false;
 
@@ -390,13 +394,14 @@ bool RobotController::jumpForAzimuth
 bool RobotController::zeroByWalking
 (
     float time,
+    float pause,
     int nPoints,
     float zHeight,
     float stepHeight,
     bool stabilization
 )
 {
-    if(!walk(time, 0, nPoints, zHeight, stepHeight, 0, 0, 0, 0, stabilization)) return false;
+    if(!walk(time, pause, nPoints, zHeight, stepHeight, 0, 0, 0, 0, stabilization)) return false;
     if(!walk(time, 0, nPoints, zHeight, stepHeight, 0, 0, 0, 0, stabilization)) return false;
 
     return true;
