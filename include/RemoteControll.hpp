@@ -33,10 +33,10 @@ class RemoteControll
 
         RemoteControll();
 
-        void getValues(String packet);
+        void getValues(String packet);    // read packet and divide
 
-        bool setMixer(int xMin, int xMax, int yMin, int yMax, unsigned int diff);
-        bool mixer(float x, float y, float &left, float &right, float outMax);
+        bool setMixer(int xMin, int xMax, int yMin, int yMax, unsigned int diff);    // set mixer parameters
+        bool mixer(float x, float y, float &left, float &right, float outMax);       // mix after setMixer
 
         int getLeftJoyX();
         int getLeftJoyY();

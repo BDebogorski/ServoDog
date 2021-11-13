@@ -22,4 +22,5 @@ class PowerSystem
     void off();
     float getBatteryVoltage();
     int getBatteryLevel();
+    bool isEmpty();
 };

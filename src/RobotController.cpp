@@ -32,6 +32,9 @@ RobotController::RobotController
 
     this->remoteControll = &remoteControll;
 
+    xAngleOffset = 0;
+    yAngleOffset = 0;
+
     float x = this->bodyKinematics->getXMountingSpacing();
     float y = this->bodyKinematics->getYMountingSpacing();
 
@@ -43,6 +46,16 @@ RobotController::RobotController
     readyToControll = false;
     zeroLeg = true;
     isOn = false;
+}
+
+void RobotController::setXAngleOffset(float offset)
+{
+    xAngleOffset = offset;
+}
+
+void RobotController::setYAngleOffset(float offset)
+{
+    yAngleOffset = offset;
 }
 
 bool RobotController::setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing)
@@ -189,15 +202,17 @@ bool RobotController::moveAllLegsSmoothly(float time, int nPoints, bool stabiliz
 
 bool RobotController::levelBody()
 {
-	float xAngle = imuFilter->getXAngle()-M_PI;// + bodyKinematics->getXAngle();
-	float yAngle = imuFilter->getYAngle()-M_PI;// + bodyKinematics->getYAngle();
+	float xAngle = imuFilter->getXAngle() - M_PI + xAngleOffset;
+	float yAngle = imuFilter->getYAngle() - M_PI + yAngleOffset;
 
-    //Serial.print(xAngle);
-    //Serial.print(" ");
-    //Serial.println(yAngle);
+    //float xDiff = fabs(xAngle-bodyKinematics->getXAngle());
+    //float yDiff = fabs(yAngle-bodyKinematics->getYAngle());
 
     if(!bodyKinematics->setBodyAngle(xAngle, yAngle)) return false;
 
+    //float diff = 0.05;
+
+    //if(xDiff > diff || yDiff > diff) return moveBodySmoothly(0.5, 100, false);
     return moveAllLegs();
 }
 
@@ -414,6 +429,44 @@ bool RobotController::zeroByWalking
     return true;
 }
 
+bool RobotController::remoteBodyPosition(float time, int nPoints, float x, float y, float z, float xAngle, float yAngle, bool stabilization)
+{
+    bool move = false;
+
+    //if(!readyToControll) return false;
+
+    if(bodyKinematics->getXOffset() != x) move = true;
+    if(bodyKinematics->getYOffset() != y) move = true;
+    if(bodyKinematics->getZOffset() != z) move = true;
+
+    if(!stabilization)
+    {
+        if(bodyKinematics->getXAngle() != xAngle) move = true;
+        if(bodyKinematics->getYAngle() != yAngle) move = true;
+    }
+
+    if(move)
+    {
+        if(!bodyKinematics->setXOffset(x)) return false;
+        if(!bodyKinematics->setYOffset(y)) return false;
+        if(!bodyKinematics->setZOffset(z)) return false;
+
+        if(stabilization)
+        {
+            //setXAngleOffset(xAngle);
+            //setYAngleOffset(yAngle);
+        }
+        else
+        {
+            if(!bodyKinematics->setBodyAngle(xAngle, yAngle)) return false;
+        }
+
+        if(!moveBodySmoothly(time, nPoints, false)) return false;
+    }
+
+    return true;
+}
+
 bool RobotController::remoteControllTankWalk
 (
     float time,
@@ -480,7 +533,7 @@ void RobotController::sitAndTurnOff(float time, int nPoints)
 
 bool RobotController::safeController(int iMUTemperature, int CPUTemperature, int maxIMUTemperature, int maxCPUTemperature)
 {
-  if(pwrSystem->getBatteryLevel() == 0)
+  if(pwrSystem->isEmpty())
   {
     Serial.print("Batterry low! (");
     Serial.print(pwrSystem->getBatteryVoltage());

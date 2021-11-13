@@ -43,3 +43,9 @@ int PowerSystem::getBatteryLevel()
     batteryLevel = (batteryVoltage-minBatteryVoltage)/(maxBatteryVoltage-minBatteryVoltage)*100;
     return batteryLevel;
 }
+
+bool PowerSystem::isEmpty()
+{
+    if(getBatteryVoltage() < minBatteryVoltage) return true;
+    return false;
+}

@@ -6,7 +6,7 @@ bool QuadrupedBodyKinematics::LFSetPosToBodyAngle(float xAngle, float yAngle)
 	float xSide = (leftFront->getXPosition()-leftFront->getXOffset()+xSpacing/2)*sin(yAngle);
 	float ySide = (leftFront->getYPosition()-leftFront->getYOffset()+ySpacing/2)*sin(xAngle);
 
-	return leftFront->setZOffset(xSide-ySide);
+	return leftFront->setZOffset(xSide-ySide+zOffset);
 }
 
 bool QuadrupedBodyKinematics::RFSetPosToBodyAngle(float xAngle, float yAngle)
@@ -14,7 +14,7 @@ bool QuadrupedBodyKinematics::RFSetPosToBodyAngle(float xAngle, float yAngle)
 	float xSide = (rightFront->getXPosition()-rightFront->getXOffset()+xSpacing/2)*sin(yAngle);
 	float ySide = (rightFront->getYPosition()-rightFront->getYOffset()+ySpacing/2)*sin(xAngle);
 
-	return rightFront->setZOffset(xSide+ySide);
+	return rightFront->setZOffset(xSide+ySide+zOffset);
 }
 
 bool QuadrupedBodyKinematics::LBSetPosToBodyAngle(float xAngle, float yAngle)
@@ -22,7 +22,7 @@ bool QuadrupedBodyKinematics::LBSetPosToBodyAngle(float xAngle, float yAngle)
 	float xSide = (leftBack->getXPosition()-leftBack->getXOffset()+xSpacing/2)*sin(yAngle);
 	float ySide = (leftBack->getYPosition()-leftBack->getYOffset()+ySpacing/2)*sin(xAngle);
 
-	return leftBack->setZOffset(-xSide-ySide);
+	return leftBack->setZOffset(-xSide-ySide+zOffset);
 }
 
 bool QuadrupedBodyKinematics::RBSetPosToBodyAngle(float xAngle, float yAngle)
@@ -30,7 +30,7 @@ bool QuadrupedBodyKinematics::RBSetPosToBodyAngle(float xAngle, float yAngle)
 	float xSide = (rightBack->getXPosition()-rightBack->getXOffset()+xSpacing/2)*sin(yAngle);
 	float ySide = (rightBack->getYPosition()-rightBack->getYOffset()+ySpacing/2)*sin(xAngle);
 
-	return rightBack->setZOffset(-xSide+ySide);
+	return rightBack->setZOffset(-xSide+ySide+zOffset);
 }
 
 QuadrupedBodyKinematics::QuadrupedBodyKinematics() {}

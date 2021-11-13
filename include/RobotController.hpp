@@ -25,6 +25,9 @@ private:
     IMUFilter* imuFilter;
 	RemoteControll* remoteControll;
 
+	float xAngleOffset;
+	float yAngleOffset;
+
 	bool readyToControll;
 	bool zeroLeg;
 	bool isOn;
@@ -42,6 +45,9 @@ public:
         IMUFilter &imuFilter,                       // AHRS algorithm filter
 		RemoteControll &remoteControll              // remote controller class
     );
+
+	void setXAngleOffset(float offset);
+	void setYAngleOffset(float offset);
 
     bool setBody(float x, float y, float z, float xAngle, float yAngle, float xSpacing, float ySpacing);    // set all body kinematics
 
@@ -110,30 +116,34 @@ public:
 
 	bool zeroByWalking
 	(
-		float time,
-		float pause,
-		int nPoints,
-		float zHeight,
-		float stepHeight,
-		bool stabilization
+		float time,           // time of one step [s]
+		float pause,          // time between steps [s]
+		int nPoints,          // number of points in leg trajectory
+		float zHeight,        // z axis body position
+		float stepHeight,     // height of step
+		bool stabilization    // stabilization on/off
 	);
+
+	bool remoteBodyPosition(float time, int nPoints, float x, float y, float z, float xAngle, float yAngle, bool stabilization);
 
 	bool remoteControllTankWalk
 	(
-		float time,
-		float pause,
-		int nPoints,
+		float time,           // time of one step [s]
+		float pause,          // time between steps [s]
+		int nPoints,          // number of points in leg trajectory
 		int xJoy,
 		int yJoy,
-		float heightBody,
-		float stepHeight,
-		float maxStepLength,
-		bool stop,
-		bool stabilization
+		float heightBody,     // z axis body position
+		float stepHeight,     // height of step
+		float maxStepLength,  // macimum step length
+		bool stop,            // stop or stamping if xJoy = 0 and yJoy = 0
+		bool stabilization    // stabilization on/off
 	);
 
-	void remoteOff(bool on, float time, int nPoints);
+	void remoteOff(bool on, float time, int nPoints);    //sit and turn off if on = 0
 
     void sitAndTurnOff(float time, int nPoints);    // sit smoothly and turn off
+
+	/* false if low batterry or overheating */
 	bool safeController(int iMUTemperature, int CPUTemperature, int maxIMUTemperature, int maxCPUTemperature);
 };

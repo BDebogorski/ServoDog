@@ -16,15 +16,15 @@ class IMU
     IMU();
     ~IMU();
 
-    int init(int port);
-    void calibrate(int time, float gyroSensitivity);
-    void readSensor();
+    int init(int port);                                 // CS port
+    void calibrate(int time, float gyroSensitivity);    // time [s], sensitivity [radians]
+    void readSensor();                                  // read all axis of acc, gyro, mag
 
-    float getAccX();
+    float getAccX();     // [m/s^2]
     float getAccY();
     float getAccZ();
-    float getGyroX();
+    float getGyroX();    // [radians]
     float getGyroY();
     float getGyroZ();
-    float getTemperature();
+    float getTemperature();    // *C
 };

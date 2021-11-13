@@ -28,7 +28,7 @@ class IMUFilter
 
     IMUFilter();
     
-    void init
+    void init    // set filters parameters
     (
         float alphaAccFilter,
         float betaAccfilter,
@@ -39,11 +39,11 @@ class IMUFilter
         float dt
     );
 
-    void zeroZAngle();
+    void zeroZAngle();    // set angle on z axis on 0
 
-    bool update(float accX, float accY, float accZ, float gyroX, float gyroY, float gyroZ);
+    bool update(float accX, float accY, float accZ, float gyroX, float gyroY, float gyroZ);    // use in timer interrupt (dt)
     float getXAngle();
     float getYAngle();
-    float getZAngle();
-    float getAbsoluteZAngle();
+    float getZAngle();            // <0, 2pi> 
+    float getAbsoluteZAngle();    // <-inf, inf>
 };

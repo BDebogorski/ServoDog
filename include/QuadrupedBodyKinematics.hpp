@@ -66,6 +66,9 @@ public:
 	float getYOffset();    // get y body position
 	float getZOffset();    // get z body position
 
+	float getXAngleOffset();    // get x body angle offset
+	float getYAngleOffset();    // get y body angle offset
+
 	float getXAngle();    // get x body orientation
 	float getYAngle();    // get y body orientation
 };

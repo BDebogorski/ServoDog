@@ -13,8 +13,8 @@ class alpha_beta
 
   public:
   
-    bool setParam(float alpha, float beta);
-    void zero();
-    float addSample(float sample, float dt); 
-    float getValue();
+    bool setParam(float alpha, float beta);    // set coefficients of filter
+    void zero();                               // reset memory of filter
+    float addSample(float sample, float dt);   // add sample
+    float getValue();                          // get output value
 };
